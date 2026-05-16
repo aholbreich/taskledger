@@ -100,8 +100,20 @@ func Write(ledger string, t *task.Task) error {
 	return os.Rename(tmp, p)
 }
 
-// Read loads one task by identifier from ledger.
+// NormalizeID ensures an ID has a "task-" prefix. If the input is a bare
+// short code (e.g. "k5g"), it prepends "task-". If it already has the prefix,
+// it returns the input unchanged.
+func NormalizeID(id string) string {
+	if !strings.HasPrefix(id, "task-") {
+		return "task-" + id
+	}
+	return id
+}
+
+// Read loads one task by identifier from ledger. The id may be a full
+// identifier ("task-k5g") or a bare short code ("k5g").
 func Read(ledger, id string) (*task.Task, error) {
+	id = NormalizeID(id)
 	p := TaskPath(ledger, id)
 	data, err := os.ReadFile(p)
 	if errors.Is(err, os.ErrNotExist) {

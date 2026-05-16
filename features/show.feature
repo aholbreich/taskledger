@@ -25,6 +25,12 @@ Feature: Show a single task in detail
     And the JSON output contains title "Add login form validation"
     And the JSON output contains status "open"
 
+  Scenario: Showing a task by bare short code works like the full identifier
+    Given a task "task-abc123" titled "Add login form validation" with status "open"
+    When the developer runs `tl show abc123`
+    Then the output contains identifier "task-abc123"
+    And the output contains title "Add login form validation"
+
   Scenario: Showing a task that does not exist is rejected
     Given no task with identifier "task-zzz999" exists
     When the developer runs `tl show task-zzz999`
