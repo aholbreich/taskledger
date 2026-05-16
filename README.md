@@ -71,13 +71,15 @@ Initialize a `.taskledger/` ledger in the current directory.
 (no flags)
 ```
 
-### `tl create "title" [options]`
+### `tl create [title] [options]`
 
-Create a new task. The title is a required positional argument.
+Create a new task. The title is a required positional argument or passed via
+`--title`.
 
 ```
+    --title              Task title (required, or positional argument)
 -d, --description        Task description (stored under ## Description)
--p, --priority           Task priority (low|medium|high) [default: medium]
+-p, --priority           Task priority (l|low, m|medium, h|high) [default: medium]
 -t, --type               Task type
     --tag                Tag to apply (repeatable)
     --actor              Creator actor [default: human]
