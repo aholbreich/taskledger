@@ -1,0 +1,98 @@
+package cmd
+
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+
+	"github.com/spf13/cobra"
+
+	"github.com/aholbreich/taskledger/internal/events"
+	"github.com/aholbreich/taskledger/internal/store"
+	"github.com/aholbreich/taskledger/internal/task"
+)
+
+func newCreateCmd() *cobra.Command {
+	var (
+		title       string
+		description string
+		priority    string
+		tags        []string
+		actor       string
+		asJSON      bool
+	)
+	c := &cobra.Command{
+		Use:   "create [title]",
+		Short: "Create a new task in the ledger",
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if title == "" && len(args) > 0 {
+				title = args[0]
+			}
+			if title == "" {
+				return fmt.Errorf("a task title is required (positional argument or --title)")
+			}
+			ledger, err := requireLedger()
+			if err != nil {
+				return err
+			}
+
+			id, err := store.NewID(ledger)
+			if err != nil {
+				return err
+			}
+			now := time.Now().UTC().Truncate(time.Second)
+			t := &task.Task{
+				ID:        id,
+				Title:     title,
+				Status:    "open",
+				Priority:  priority,
+				CreatedAt: now,
+				UpdatedAt: now,
+				CreatedBy: actor,
+				DependsOn: []string{},
+				Tags:      append([]string{}, tags...),
+				Verify: task.Verify{
+					Commands:         []string{},
+					EvidenceRequired: []string{},
+				},
+				Body: descriptionBody(description),
+			}
+
+			if err := store.Write(ledger, t); err != nil {
+				return err
+			}
+			if err := events.Append(ledger, events.Event{
+				Event:  "created",
+				TaskID: t.ID,
+				Actor:  actor,
+			}); err != nil {
+				return err
+			}
+
+			if asJSON {
+				enc := json.NewEncoder(cmd.OutOrStdout())
+				enc.SetIndent("", "  ")
+				return enc.Encode(t)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "Created task %s\n", t.ID)
+			return nil
+		},
+	}
+	c.Flags().StringVarP(&title, "title", "t", "", "Task title (required)")
+	c.Flags().StringVarP(&description, "description", "d", "", "Task description (stored under ## Description)")
+	c.Flags().StringVarP(&priority, "priority", "p", "medium", "Task priority (low|medium|high)")
+	c.Flags().StringArrayVar(&tags, "tag", nil, "Tag to apply (repeatable)")
+	c.Flags().StringVar(&actor, "actor", "human", "Creator actor")
+	c.Flags().BoolVar(&asJSON, "json", false, "Emit JSON output")
+	return c
+}
+
+// descriptionBody wraps a free-text description in a "## Description" Markdown
+// section, or returns "" if the description is empty.
+func descriptionBody(description string) string {
+	if description == "" {
+		return ""
+	}
+	return "## Description\n\n" + description + "\n"
+}
