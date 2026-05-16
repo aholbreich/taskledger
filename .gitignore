@@ -23,7 +23,7 @@
 go.work
 
 # Ledger local state (test artifacts)
-.taskledger/
+#.taskledger/
 
 # Agent local files
 .codex
