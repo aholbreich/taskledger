@@ -15,6 +15,23 @@ Feature: Create a task
     And the new task has no dependencies
     And an event "created" is recorded for the new task
 
+  # Shortcut version for humans
+  Scenario: Creating a task records without "create" or "add"
+    Given no tasks exist
+    When the developer runs `tl "Shortcut syntax"`
+    Then a new task with title "Shortcut syntax" exists
+    And the new task has status "open"
+    And the new task has no dependencies
+    And an event "created" is recorded for the new task
+  
+  Scenario: add is a synonym for create
+    Given no tasks exist
+    When the developer runs `tl add "Add login form validation"`
+    Then a new task with title "Add login form validation" exists
+    And the new task has status "open"
+    And the new task has no dependencies
+    And an event "created" is recorded for the new task
+
   Scenario: Creating a task applies type, priority, and tags
     When the developer runs `tl create "Refactor auth error messages" -t chore --priority low --tag frontend --tag auth`
     Then a new task with title "Refactor auth error messages" exists
@@ -90,10 +107,4 @@ Feature: Create a task
     Then the command exits with code 2
     And the output reports that the priority is invalid
 
-  Scenario: add is a synonym for create
-    Given no tasks exist
-    When the developer runs `tl add "Add login form validation"`
-    Then a new task with title "Add login form validation" exists
-    And the new task has status "open"
-    And the new task has no dependencies
-    And an event "created" is recorded for the new task
+

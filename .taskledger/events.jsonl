@@ -2,3 +2,4 @@
 {"time":"2026-05-17T20:50:50Z","event":"created","task_id":"task-3q7","actor":"human"}
 {"time":"2026-05-17T20:58:34Z","event":"created","task_id":"task-mj2","actor":"pi-agent"}
 {"time":"2026-05-17T20:58:39Z","event":"claimed","task_id":"task-mj2","actor":"pi-agent"}
+{"time":"2026-05-17T21:00:06Z","event":"closed","task_id":"task-mj2","actor":"pi-agent"}

@@ -20,14 +20,27 @@ func SetVersion(v string) {
 
 func NewRootCmd() *cobra.Command {
 	var colorMode string
-	root := &cobra.Command{
+	var root *cobra.Command
+	root = &cobra.Command{
 		Use:           "tl",
 		Short:         "TaskLedger — a Git-native task ledger for humans and AI coding agents",
 		Version:       rootVersion,
 		SilenceUsage:  true,
 		SilenceErrors: false,
+		Args:          cobra.ArbitraryArgs,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			return internalcolor.ValidateMode(colorMode)
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare `tl "Title"` is shorthand for `tl create "Title"`.
+			if len(args) > 0 && cmd == root {
+				createCmd := newCreateCmd()
+				createCmd.SetArgs(args)
+				createCmd.SetOut(cmd.OutOrStdout())
+				createCmd.SetErr(cmd.ErrOrStderr())
+				return createCmd.Execute()
+			}
+			return cmd.Help()
 		},
 	}
 	root.PersistentFlags().StringVar(&colorMode, "color", internalcolor.ModeAuto, "When to use ANSI color (auto|never|always)")
