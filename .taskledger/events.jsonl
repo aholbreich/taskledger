@@ -46,3 +46,9 @@
 {"time":"2026-05-17T18:03:05Z","event":"claimed","task_id":"task-yv4","actor":"pi-agent"}
 {"time":"2026-05-17T18:18:45Z","event":"closed","task_id":"task-yv4","actor":"pi-agent"}
 {"time":"2026-05-17T18:32:01Z","event":"note_added","task_id":"task-q4h","actor":"claude"}
+{"time":"2026-05-17T18:53:06Z","event":"closed","task_id":"task-q4h","actor":"claude"}
+{"time":"2026-05-17T18:53:43Z","event":"closed","task_id":"task-936","actor":"pi-agent"}
+{"time":"2026-05-17T18:53:43Z","event":"closed","task_id":"task-fm4","actor":"pi-agent"}
+{"time":"2026-05-17T18:53:43Z","event":"closed","task_id":"task-un0","actor":"pi-agent"}
+{"time":"2026-05-17T18:54:16Z","event":"claimed","task_id":"task-i7x","actor":"pi-agent"}
+{"time":"2026-05-17T18:58:57Z","event":"closed","task_id":"task-i7x","actor":"pi-agent"}

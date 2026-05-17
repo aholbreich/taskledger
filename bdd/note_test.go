@@ -14,6 +14,10 @@ func initializeNoteSteps(ctx *godog.ScenarioContext, w *world) {
 	ctx.Step(`^"([^"]*)" has a note from "([^"]*)"$`, w.taskHasNoteFrom)
 	ctx.Step(`^the note contains the message "([^"]*)"$`, w.noteContainsMessage)
 	ctx.Step(`^the note has a timestamp$`, w.noteHasTimestamp)
+
+	// pending.feature outcomes
+	ctx.Step(`^"([^"]*)" records the question "([^"]*)"$`, w.taskRecordsQuestion)
+	ctx.Step(`^"([^"]*)" records the requester "([^"]*)"$`, w.taskRecordsRequester)
 }
 
 func (w *world) taskTitled(id, title string) error {
@@ -82,6 +86,34 @@ func (w *world) noteHasTimestamp() error {
 	}
 	if !hasTimestamp {
 		return fmt.Errorf("no RFC 3339 timestamp found in ## Notes section; body:\n%s", t.Body)
+	}
+	return nil
+}
+
+func (w *world) taskRecordsQuestion(id, question string) error {
+	t, err := loadFixtureTask(id)
+	if err != nil {
+		return err
+	}
+	if t.Pending == nil {
+		return fmt.Errorf("task %s has no pending info", id)
+	}
+	if t.Pending.Question != question {
+		return fmt.Errorf("task %s pending question = %q, expected %q", id, t.Pending.Question, question)
+	}
+	return nil
+}
+
+func (w *world) taskRecordsRequester(id, requester string) error {
+	t, err := loadFixtureTask(id)
+	if err != nil {
+		return err
+	}
+	if t.Pending == nil {
+		return fmt.Errorf("task %s has no pending info", id)
+	}
+	if t.Pending.Requester != requester {
+		return fmt.Errorf("task %s pending requester = %q, expected %q", id, t.Pending.Requester, requester)
 	}
 	return nil
 }

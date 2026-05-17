@@ -24,6 +24,7 @@ type Task struct {
 	Assignee  *string   `yaml:"assignee" json:"assignee"`
 	DependsOn []string  `yaml:"depends_on" json:"depends_on"`
 	Claim     Claim     `yaml:"claim" json:"claim"`
+	Pending   *Pending  `yaml:"pending,omitempty" json:"pending,omitempty"`
 	Tags      []string  `yaml:"tags" json:"tags"`
 
 	// Body is the Markdown content after the YAML frontmatter. It is excluded
@@ -37,6 +38,12 @@ type Claim struct {
 	ClaimedAt   *time.Time `yaml:"claimed_at" json:"claimed_at"`
 	ExpiresAt   *time.Time `yaml:"expires_at" json:"expires_at"`
 	HeartbeatAt *time.Time `yaml:"heartbeat_at" json:"heartbeat_at"`
+}
+
+type Pending struct {
+	Question    string    `yaml:"question" json:"question"`
+	Requester   string    `yaml:"requester" json:"requester"`
+	RequestedAt time.Time `yaml:"requested_at" json:"requested_at"`
 }
 
 const frontmatterSep = "---"

@@ -31,29 +31,63 @@ Rules:
 
 # TaskLedger Workflow
 
-This repository uses TaskLedger (`tl`) for local task coordination between humans and agents.
+This repository uses TaskLedger (`tl`) for local task coordination between
+humans and agents.
+
+Set `TL_ACTOR` once at the start of your session — every `tl` command picks
+it up via the resolution chain (`--actor` flag > `TL_ACTOR` > `ACTOR_NAME`
+> `BEADS_ACTOR` > auto-detect), so you don't need `--actor` on each call:
+
+```sh
+export TL_ACTOR=claude-code:<purpose>
+```
 
 When starting work:
 
-1. - Run `tl ready --json` to find tasks that are open, unblocked, and unclaimed.
-   - Or `tl show <task-id>` when asked to do a particular task.
-2. Claim one task before editing files:
-   `tl claim <task-id> --actor <your-agent-name>`
+1. Pick a task:
+   - `tl ready --json` for unclaimed work, or `tl ready --tag <role> --json`
+     to filter by a role-ish dimension (review, docs, arch — see
+     `.decisions/0001-multi-agent-coordination-via-tags.md`).
+   - `tl show <task-id>` when handed a specific task.
+   - `tl history <task-id>` if the task was previously worked on (stale
+     claim, prior notes) — read what was tried before you start.
+2. Claim it before editing files:
+   `tl claim <task-id>`
 3. Inspect the task details:
    `tl show <task-id>`
-4. Do the work. Record important context, decisions, blockers, or handoff notes:
-   `tl note <task-id> --actor <your-agent-name> -m "..."`
-5. When the task is complete, close it:
-   `tl close <task-id> --actor <your-agent-name>`
+4. Do the work. Re-run `tl claim <task-id>` periodically on long work —
+   it extends the lease (heartbeat pattern). Record important context,
+   decisions, blockers, or handoff notes:
+   `tl note <task-id> -m "..."`
+5. Pick the correct exit:
+   - `tl close <task-id>` — work is done and verified.
+   - `tl cancel <task-id> -m "<reason>"` — work won't be done
+     (superseded, duplicate, no-longer-needed). Honest abandonment beats
+     a misleading `close`.
+   - `tl block <task-id> -m "<blocker>"` — external blocker (waiting on
+     upstream, infra, third-party fix); claim is released.
+   - `tl pending <task-id> --question "..."` — you need a human decision
+     to continue; claim is released.
+   - `tl release <task-id>` — you're stepping away cleanly with work
+     still possible by another actor; leave a comprehensive note first.
 
+   (`cancel`, `block`, `pending` are spec'd in `features/`; check the
+   current `@implemented` set with `make bdd` before relying on them.)
 
 Rules:
 
-- Do **not** work on a task claimed by another active actor unless explicitly told.
-- Prefer tasks from `tl ready`; blocked, pending, done, cancelled, or actively claimed tasks are not ready.
-- Leave notes for partial progress, failed approaches, decisions, and handoffs.
-- Do **not** edit `.taskledger/events.jsonl` manually.
-- Set `TL_ACTOR` when possible so commands can resolve your identity consistently.
+- Do **not** work on a task claimed by another active actor (claim not
+  expired) unless explicitly told.
+- If your work uncovers a separable piece of work, create a follow-up
+  task with `tl create` rather than silently expanding scope. Match the
+  type/priority/tag conventions of similar existing tasks.
+- Prefer tasks from `tl ready`; blocked, pending, done, cancelled, or
+  actively claimed tasks are not ready.
+- Leave notes for partial progress, failed approaches, decisions, and
+  handoffs.
+- Do **not** edit `.taskledger/events.jsonl` manually. Task `.md` files
+  may be edited directly when there is no CLI path (e.g. backfilling a
+  description on a task that was created without one).
 - Ask before editing `AGENTS.md` or other project instruction files.
 - If `.taskledger/` is missing, ask the human whether to run `tl init`.
 

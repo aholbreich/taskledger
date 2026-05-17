@@ -201,6 +201,18 @@ clean up abandoned claims.
     --json               Emit JSON output
 ```
 
+## `tl pending TASK_ID`
+
+Mark a task `pending_human` with a question. The claim is released so the
+task is visible as awaiting input. Stores the question and requester in the
+task frontmatter.
+
+```
+-q, --question          Question for the human (required)
+    --actor             Actor requesting human input (optional; auto-resolved)
+    --json              Emit JSON output
+```
+
 ## `tl agents`
 
 Print a recommended `AGENTS.md` snippet for TaskLedger-aware agents. Writes

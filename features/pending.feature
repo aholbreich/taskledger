@@ -1,3 +1,4 @@
+@implemented
 Feature: Mark a task as pending human input
   As an agent that needs a human decision
   I want to put a task into a waiting state with a question
