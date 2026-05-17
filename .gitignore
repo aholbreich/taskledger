@@ -29,3 +29,4 @@ go.work
 # Agent local files
 .codex
 .claude
+.taskledger/.lock
