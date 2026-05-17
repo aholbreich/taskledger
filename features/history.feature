@@ -1,3 +1,4 @@
+@implemented
 Feature: Inspect the event history of the ledger
   As a reviewer or auditor
   I want to see events recorded for a task or recently across all tasks

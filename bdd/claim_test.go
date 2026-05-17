@@ -35,7 +35,7 @@ func initializeClaimSteps(ctx *godog.ScenarioContext, w *world) {
 }
 
 func (w *world) readyTaskTitled(id, title string) error {
-	return writeFixtureTask(&task.Task{
+	if err := writeFixtureTask(&task.Task{
 		ID:        id,
 		Title:     title,
 		Status:    "open",
@@ -45,7 +45,10 @@ func (w *world) readyTaskTitled(id, title string) error {
 		CreatedBy: "human",
 		DependsOn: []string{},
 		Tags:      []string{},
-	})
+	}); err != nil {
+		return err
+	}
+	return recordFixtureEvent("created", id, "human", fixtureTime)
 }
 
 func (w *world) readyTask(id string) error {
@@ -56,7 +59,7 @@ func (w *world) taskClaimedByWithActiveLease(id, actor string) error {
 	now := time.Now().UTC().Truncate(time.Second)
 	expires := now.Add(1 * time.Hour)
 	a := actor
-	return writeFixtureTask(&task.Task{
+	if err := writeFixtureTask(&task.Task{
 		ID:        id,
 		Title:     id,
 		Status:    "in_progress",
@@ -72,7 +75,10 @@ func (w *world) taskClaimedByWithActiveLease(id, actor string) error {
 			ExpiresAt:   &expires,
 			HeartbeatAt: &now,
 		},
-	})
+	}); err != nil {
+		return err
+	}
+	return recordFixtureEvent("claimed", id, actor, now)
 }
 
 func (w *world) taskWithStatus(id, status string) error {

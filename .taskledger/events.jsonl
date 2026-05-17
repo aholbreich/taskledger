@@ -94,3 +94,6 @@
 {"time":"2026-05-17T20:12:49Z","event":"claimed","task_id":"task-dog","actor":"pi-agent"}
 {"time":"2026-05-17T20:13:08Z","event":"claimed","task_id":"task-nge","actor":"pi:codex"}
 {"time":"2026-05-17T20:14:45Z","event":"closed","task_id":"task-dog","actor":"pi-agent"}
+{"time":"2026-05-17T20:16:30Z","event":"claimed","task_id":"task-hdj","actor":"pi-agent"}
+{"time":"2026-05-17T20:17:06Z","event":"note_added","task_id":"task-nge","actor":"pi:codex"}
+{"time":"2026-05-17T20:17:06Z","event":"closed","task_id":"task-nge","actor":"pi:codex"}
