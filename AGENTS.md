@@ -28,3 +28,31 @@ Rules:
 - Use concrete examples.
 - Do not write vague `Then` steps.
 - Do not include step definitions in feature files unless explicitly requested.
+
+# TaskLedger Workflow
+
+This repository uses TaskLedger (`tl`) for local task coordination between humans and agents.
+
+When starting work:
+
+1. - Run `tl ready --json` to find tasks that are open, unblocked, and unclaimed.
+   - Or `tl show <task-id>` when asked to do a particular task.
+2. Claim one task before editing files:
+   `tl claim <task-id> --actor <your-agent-name>`
+3. Inspect the task details:
+   `tl show <task-id>`
+4. Do the work. Record important context, decisions, blockers, or handoff notes:
+   `tl note <task-id> --actor <your-agent-name> -m "..."`
+5. When the task is complete, close it:
+   `tl close <task-id> --actor <your-agent-name>`
+
+
+Rules:
+
+- Do **not** work on a task claimed by another active actor unless explicitly told.
+- Prefer tasks from `tl ready`; blocked, pending, done, cancelled, or actively claimed tasks are not ready.
+- Leave notes for partial progress, failed approaches, decisions, and handoffs.
+- Do **not** edit `.taskledger/events.jsonl` manually.
+- Set `TL_ACTOR` when possible so commands can resolve your identity consistently.
+- Ask before editing `AGENTS.md` or other project instruction files.
+- If `.taskledger/` is missing, ask the human whether to run `tl init`.
