@@ -2,6 +2,7 @@
 package events
 
 import (
+	"bufio"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -38,4 +39,32 @@ func Append(ledger string, e Event) error {
 		return err
 	}
 	return nil
+}
+
+// ReadAll reads every event from the ledger journal in append order.
+func ReadAll(ledger string) ([]Event, error) {
+	p := filepath.Join(ledger, repo.EventsJournal)
+	f, err := os.Open(p)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	var out []Event
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Bytes()
+		if len(line) == 0 {
+			continue
+		}
+		var e Event
+		if err := json.Unmarshal(line, &e); err != nil {
+			return nil, err
+		}
+		out = append(out, e)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
 }

@@ -44,6 +44,7 @@ func NewRootCmd() *cobra.Command {
 	root.AddCommand(newReleaseCmd())
 	root.AddCommand(newStaleCmd())
 	root.AddCommand(newBlockCmd())
+	root.AddCommand(newCancelCmd())
 	root.AddCommand(newUnblockCmd())
 	root.AddCommand(newPendingCmd())
 	root.AddCommand(newResolveCmd())

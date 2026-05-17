@@ -108,6 +108,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	initializeStaleSteps(ctx, w)
 	initializeAgentsSteps(ctx, w)
 	initializeBlockSteps(ctx, w)
+	initializeCancelSteps(ctx, w)
 	initializeResolveSteps(ctx, w)
 }
 

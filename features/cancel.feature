@@ -1,3 +1,4 @@
+@implemented
 Feature: Cancel a task that will not be done
   As an actor abandoning work
   I want to mark a task cancelled with a reason
