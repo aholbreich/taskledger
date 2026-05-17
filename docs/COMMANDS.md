@@ -38,6 +38,7 @@ output includes `ID`, `Status`, `Priority`, `Claimed By`, and `Title`.
 ```
 -a, --all                Include closed tasks (done and cancelled)
     --status             Only show tasks with this status (e.g. pending_human, blocked)
+    --tag                Only show tasks carrying this tag
     --claimed-by         Only show tasks claimed by this actor
     --mine               Shortcut for --claimed-by <resolved actor>
     --json               Emit JSON output
@@ -59,7 +60,12 @@ List tasks that are ready to be claimed. A task is ready when it is `open`
 (or `in_progress` with an expired claim), all dependencies are `done`, and
 no active claim exists.
 
+Use `--tag` to narrow the queue to a role-ish dimension (review, docs,
+arch, etc.). See [`../.decisions/0001-multi-agent-coordination-via-tags.md`](../.decisions/0001-multi-agent-coordination-via-tags.md)
+for the rationale.
+
 ```
+    --tag                Only show tasks carrying this tag
     --json               Emit JSON output
 ```
 
@@ -173,14 +179,26 @@ eligible for the ready queue again. Rejects tasks that are not blocked.
     --json               Emit JSON output
 ```
 
-## `tl history TASK_ID`
+## `tl history [TASK_ID]`
 
-Print every event recorded for a task in chronological order. Reads from
-`.taskledger/events.jsonl` and filters to one task. Use to reconstruct who
-did what and when without opening the raw journal.
+Print events recorded in `.taskledger/events.jsonl`. With a `TASK_ID`,
+filters to that task's audit trail. With `--since <duration>`, filters to
+events within the given window (e.g. `24h`, `7d`) across all tasks —
+useful for "what did the team do today?" review. At least one of
+`TASK_ID` or `--since` is required.
 
 ```
+    --since              Only show events within this duration (e.g. 24h, 7d)
     --json               Emit JSON output (array of raw event objects)
+```
+
+## `tl stale`
+
+List tasks whose claims have expired. Use before `tl release --force` to
+clean up abandoned claims.
+
+```
+    --json               Emit JSON output
 ```
 
 ## `tl agents`

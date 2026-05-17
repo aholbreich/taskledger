@@ -1,3 +1,4 @@
+@implemented
 Feature: List stale claims
   As a developer or agent
   I want to see claims past their expiry
@@ -7,7 +8,7 @@ Feature: List stale claims
     Given an initialized TaskLedger repository
 
   Scenario: A claim past its expiry appears in the stale list
-    Given a task "task-abc123" claimed by "claude-code:main" with an expired lease
+    Given a task "task-abc123" with an expired claim by "claude-code:main"
     When the developer runs `tl stale`
     Then the stale output contains "task-abc123"
 
@@ -17,7 +18,7 @@ Feature: List stale claims
     Then the stale output does not contain "task-abc123"
 
   Scenario: The stale list can be retrieved as JSON
-    Given a task "task-abc123" claimed by "claude-code:frontend" with an expired lease
+    Given a task "task-abc123" with an expired claim by "claude-code:frontend"
     When the developer runs `tl stale --json`
     Then the JSON output is an array containing a stale claim for "task-abc123"
     And the JSON output contains actor "claude-code:frontend"

@@ -37,3 +37,7 @@
 {"time":"2026-05-17T17:19:51Z","event":"created","task_id":"task-un0","actor":"claude"}
 {"time":"2026-05-17T17:40:23Z","event":"claimed","task_id":"task-q4h","actor":"pi-agent"}
 {"time":"2026-05-17T17:43:58Z","event":"released","task_id":"task-q4h","actor":"pi-agent"}
+{"time":"2026-05-17T17:48:47Z","event":"claimed","task_id":"task-3k5","actor":"pi-agent"}
+{"time":"2026-05-17T17:50:48Z","event":"created","task_id":"task-936","actor":"claude"}
+{"time":"2026-05-17T17:50:56Z","event":"note_added","task_id":"task-nge","actor":"claude"}
+{"time":"2026-05-17T17:54:42Z","event":"closed","task_id":"task-3k5","actor":"pi-agent"}

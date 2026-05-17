@@ -14,6 +14,7 @@ import (
 
 func newReadyCmd() *cobra.Command {
 	var asJSON bool
+	var tag string
 	c := &cobra.Command{
 		Use:   "ready",
 		Short: "List tasks that are ready to be claimed",
@@ -31,6 +32,9 @@ func newReadyCmd() *cobra.Command {
 			ready := make([]*task.Task, 0, len(all))
 			for _, t := range all {
 				if !isReady(t, ledger, now) {
+					continue
+				}
+				if tag != "" && !taskHasTag(t, tag) {
 					continue
 				}
 				ready = append(ready, t)
@@ -51,6 +55,7 @@ func newReadyCmd() *cobra.Command {
 		},
 	}
 	c.Flags().BoolVar(&asJSON, "json", false, "Emit JSON output")
+	c.Flags().StringVar(&tag, "tag", "", "Only show tasks carrying this tag")
 	return c
 }
 

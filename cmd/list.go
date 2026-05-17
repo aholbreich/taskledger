@@ -17,6 +17,7 @@ func newListCmd() *cobra.Command {
 	var claimedBy string
 	var status string
 	var mine bool
+	var tag string
 	c := &cobra.Command{
 		Use:   "list",
 		Short: "List tasks in the ledger",
@@ -29,7 +30,7 @@ func newListCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			tasks = filterListTasks(tasks, includeAll, claimedBy, status, mine)
+			tasks = filterListTasks(tasks, includeAll, claimedBy, status, mine, tag)
 
 			if asJSON {
 				enc := json.NewEncoder(cmd.OutOrStdout())
@@ -50,10 +51,11 @@ func newListCmd() *cobra.Command {
 	c.Flags().StringVar(&claimedBy, "claimed-by", "", "Only show tasks claimed by this actor")
 	c.Flags().StringVar(&status, "status", "", "Only show tasks with this status (overrides default closed hiding)")
 	c.Flags().BoolVar(&mine, "mine", false, "Only show tasks claimed by the resolved actor")
+	c.Flags().StringVar(&tag, "tag", "", "Only show tasks carrying this tag")
 	return c
 }
 
-func filterListTasks(tasks []*task.Task, includeAll bool, claimedBy string, status string, mine bool) []*task.Task {
+func filterListTasks(tasks []*task.Task, includeAll bool, claimedBy string, status string, mine bool, tag string) []*task.Task {
 	if mine {
 		resolved := ResolveActor("")
 		claimedBy = resolved
@@ -71,6 +73,9 @@ func filterListTasks(tasks []*task.Task, includeAll bool, claimedBy string, stat
 		}
 
 		if claimedBy != "" && taskClaimActor(t) != claimedBy {
+			continue
+		}
+		if tag != "" && !taskHasTag(t, tag) {
 			continue
 		}
 		filtered = append(filtered, t)
@@ -95,4 +100,13 @@ func taskClaimActor(t *task.Task) string {
 		return ""
 	}
 	return *t.Claim.Actor
+}
+
+func taskHasTag(t *task.Task, tag string) bool {
+	for _, tg := range t.Tags {
+		if tg == tag {
+			return true
+		}
+	}
+	return false
 }

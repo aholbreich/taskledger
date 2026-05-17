@@ -62,3 +62,21 @@ Feature: List ready tasks
     Then the JSON output is an array containing a task with identifier "task-abc123"
     And the JSON output contains title "Add login form validation"
     And the JSON output contains a priority for "task-abc123"
+
+  Scenario: Ready can be filtered to tasks carrying a specific tag
+    Given the following tasks exist:
+      | id          | status | tags        |
+      | task-aaa111 | open   | review      |
+      | task-bbb222 | open   | docs        |
+      | task-ccc333 | open   | review,arch |
+      | task-ddd444 | open   |             |
+    When the agent runs `tl ready --tag review`
+    Then the ready output contains "task-aaa111"
+    And the ready output contains "task-ccc333"
+    And the ready output does not contain "task-bbb222"
+    And the ready output does not contain "task-ddd444"
+
+  Scenario: A tag filter does not override the ready criteria
+    Given a task "task-abc123" with status "blocked" and tag "review"
+    When the agent runs `tl ready --tag review`
+    Then the ready output does not contain "task-abc123"

@@ -186,6 +186,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 	// ready.feature preconditions and outcomes
 	ctx.Step(`^a task "([^"]*)" with status "([^"]*)" and no dependencies$`, w.taskWithStatusAndNoDeps)
+	ctx.Step(`^a task "([^"]*)" with status "([^"]*)" and tag "([^"]*)"$`, w.taskWithStatusAndTag)
 	ctx.Step(`^a task "([^"]*)" titled "([^"]*)" with status "([^"]*)" and no dependencies$`, w.taskTitledWithStatusAndNoDeps)
 	ctx.Step(`^a task "([^"]*)" with an expired claim by "([^"]*)"$`, w.taskWithExpiredClaim)
 	ctx.Step(`^the ready output contains "([^"]*)"$`, w.readyOutputContains)
@@ -198,6 +199,11 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^"([^"]*)" has a note from "([^"]*)"$`, w.taskHasNoteFrom)
 	ctx.Step(`^the note contains the message "([^"]*)"$`, w.noteContainsMessage)
 	ctx.Step(`^the note has a timestamp$`, w.noteHasTimestamp)
+
+	// stale.feature preconditions and outcomes
+	ctx.Step(`^the stale output contains "([^"]*)"$`, w.staleOutputContains)
+	ctx.Step(`^the stale output does not contain "([^"]*)"$`, w.staleOutputDoesNotContain)
+	ctx.Step(`^the JSON output is an array containing a stale claim for "([^"]*)"$`, w.jsonArrayContainsStaleClaim)
 
 	// agents.feature preconditions and outcomes
 	ctx.Step(`^the file "([^"]*)" exists with content "([^"]*)"$`, w.fileExistsWithContent)
@@ -446,7 +452,7 @@ func (w *world) eventRecordedFor(eventName, taskID string) error {
 
 func (w *world) followingTasksExist(table *godog.Table) error {
 	allowedColumns := map[string]bool{
-		"id": true, "status": true, "priority": true, "claimed by": true, "title": true,
+		"id": true, "status": true, "priority": true, "claimed by": true, "title": true, "tags": true,
 	}
 	for _, header := range table.Rows[0].Cells {
 		if !allowedColumns[header.Value] {
@@ -473,7 +479,7 @@ func (w *world) followingTasksExist(table *godog.Table) error {
 		}
 		title := values["title"]
 		if title == "" {
-			return fmt.Errorf("task row %d is missing title", rowIdx+1)
+			title = id
 		}
 
 		fixture := &task.Task{
@@ -495,6 +501,14 @@ func (w *world) followingTasksExist(table *godog.Table) error {
 				ClaimedAt:   &claimedAt,
 				ExpiresAt:   &expiresAt,
 				HeartbeatAt: &claimedAt,
+			}
+		}
+		if tagsVal := values["tags"]; tagsVal != "" {
+			for _, tag := range strings.Split(tagsVal, ",") {
+				tag = strings.TrimSpace(tag)
+				if tag != "" {
+					fixture.Tags = append(fixture.Tags, tag)
+				}
 			}
 		}
 		if err := writeFixtureTask(fixture); err != nil {
@@ -945,18 +959,37 @@ func (w *world) outputReportsTaskAlreadyClosed() error {
 }
 
 func (w *world) jsonClaimActor(expected string) error {
-	var data struct {
+	dec := json.NewDecoder(bytes.NewReader(w.stdout.Bytes()))
+
+	// Try single object.
+	var single struct {
 		Claim struct {
 			Actor *string `json:"actor"`
 		} `json:"claim"`
 	}
-	if err := json.Unmarshal(w.stdout.Bytes(), &data); err != nil {
-		return fmt.Errorf("stdout is not JSON (%v); got: %s", err, w.stdout.String())
+	if err := json.Unmarshal(w.stdout.Bytes(), &single); err == nil && single.Claim.Actor != nil {
+		if *single.Claim.Actor != expected {
+			return fmt.Errorf("JSON claim actor = %v, expected %q", single.Claim.Actor, expected)
+		}
+		return nil
 	}
-	if data.Claim.Actor == nil || *data.Claim.Actor != expected {
-		return fmt.Errorf("JSON claim actor = %v, expected %q", data.Claim.Actor, expected)
+
+	// Try array.
+	dec = json.NewDecoder(bytes.NewReader(w.stdout.Bytes()))
+	tok, err := dec.Token()
+	if err != nil || tok != json.Delim('[') {
+		return fmt.Errorf("stdout is neither JSON object nor array; got: %s", w.stdout.String())
 	}
-	return nil
+	for dec.More() {
+		var t task.Task
+		if err := dec.Decode(&t); err != nil {
+			return fmt.Errorf("parse JSON array element: %w", err)
+		}
+		if t.Claim.Actor != nil && *t.Claim.Actor == expected {
+			return nil
+		}
+	}
+	return fmt.Errorf("JSON array does not contain a claim by %q; got: %s", expected, w.stdout.String())
 }
 
 func (w *world) jsonClaimExpiryAfter(minutes int) error {
@@ -1012,6 +1045,20 @@ func (w *world) claimExpiryIsExtended(id string) error {
 
 func (w *world) taskWithStatusAndNoDeps(id, status string) error {
 	return w.taskWithStatus(id, status)
+}
+
+func (w *world) taskWithStatusAndTag(id, status, tag string) error {
+	return writeFixtureTask(&task.Task{
+		ID:        id,
+		Title:     id,
+		Status:    status,
+		Priority:  "medium",
+		CreatedAt: fixtureTime,
+		UpdatedAt: fixtureTime,
+		CreatedBy: "human",
+		DependsOn: []string{},
+		Tags:      []string{tag},
+	})
 }
 
 func (w *world) taskTitledWithStatusAndNoDeps(id, title, status string) error {
@@ -1143,6 +1190,38 @@ func (w *world) noteHasTimestamp() error {
 		return fmt.Errorf("no RFC 3339 timestamp found in ## Notes section; body:\n%s", t.Body)
 	}
 	return nil
+}
+
+// --- stale.feature support ------------------------------------------------
+
+func (w *world) staleOutputContains(id string) error {
+	if _, ok := lineContaining(w.stdout.String(), id); !ok {
+		return fmt.Errorf("stale output does not contain %q; got:\n%s", id, w.stdout.String())
+	}
+	return nil
+}
+
+func (w *world) staleOutputDoesNotContain(id string) error {
+	if line, ok := lineContaining(w.stdout.String(), id); ok {
+		return fmt.Errorf("stale output unexpectedly contains %q in line: %s", id, line)
+	}
+	return nil
+}
+
+func (w *world) jsonArrayContainsStaleClaim(id string) error {
+	tasks, err := w.jsonTaskArray()
+	if err != nil {
+		return err
+	}
+	for _, t := range tasks {
+		if t.ID == id {
+			if t.Claim.Actor == nil {
+				return fmt.Errorf("task %s has no claim actor", id)
+			}
+			return nil
+		}
+	}
+	return fmt.Errorf("JSON array does not contain task %q; got: %s", id, w.stdout.String())
 }
 
 // --- agents.feature support -----------------------------------------------

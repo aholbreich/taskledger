@@ -115,3 +115,16 @@ Feature: List tasks in the ledger
     Then the output lists "task-aaa111"
     And the output lists "task-ccc333"
     And the output does not list "task-bbb222"
+
+  Scenario: Listing tasks can be filtered by tag
+    Given the following tasks exist:
+      | id          | status      | tags        | title              |
+      | task-aaa111 | open        | review      | Review auth flow   |
+      | task-bbb222 | in_progress | docs        | Document login     |
+      | task-ccc333 | open        | review,arch | Review architecture|
+      | task-ddd444 | open        |             | No tags            |
+    When the developer runs `tl list --tag review`
+    Then the output lists "task-aaa111"
+    And the output lists "task-ccc333"
+    And the output does not list "task-bbb222"
+    And the output does not list "task-ddd444"
