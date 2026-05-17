@@ -41,11 +41,12 @@ func TestFeatures(t *testing.T) {
 }
 
 type world struct {
-	tempDir string
-	origWd  string
-	stdout  *bytes.Buffer
-	stderr  *bytes.Buffer
-	cmdErr  error
+	tempDir      string
+	origWd       string
+	stdout       *bytes.Buffer
+	stderr       *bytes.Buffer
+	cmdErr       error
+	envOverrides []string // env keys set during scenario, restored in After
 }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
@@ -74,6 +75,11 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.After(func(ctx context.Context, _ *godog.Scenario, _ error) (context.Context, error) {
 		_ = os.Chdir(w.origWd)
 		_ = os.RemoveAll(w.tempDir)
+		cmd.DetectedActor = cmd.DefaultDetectActor
+		for _, key := range w.envOverrides {
+			_ = os.Unsetenv(key)
+		}
+		w.envOverrides = nil
 		return ctx, nil
 	})
 
@@ -157,6 +163,11 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^"([^"]*)" is not claimed$`, w.taskIsNotClaimed)
 	ctx.Step(`^the JSON output contains actor "([^"]*)"$`, w.jsonClaimActor)
 	ctx.Step(`^the JSON output contains a claim expiry (\d+) minutes after the claim time$`, w.jsonClaimExpiryAfter)
+
+	// actor.feature preconditions and outcomes
+	ctx.Step(`^environment variable "([^"]*)" is "([^"]*)"$`, w.setEnv)
+	ctx.Step(`^the detected agent is "([^"]*)"$`, w.setDetectedAgent)
+	ctx.Step(`^the claim expiry for "([^"]*)" is extended$`, w.claimExpiryIsExtended)
 }
 
 // --- init.feature support -------------------------------------------------
@@ -802,6 +813,32 @@ func (w *world) jsonClaimExpiryAfter(minutes int) error {
 	expected := time.Duration(minutes) * time.Minute
 	if diff != expected {
 		return fmt.Errorf("claim expiry is %v after claim time, expected %d minutes (%v)", diff, minutes, expected)
+	}
+	return nil
+}
+
+// --- actor.feature support ------------------------------------------------
+
+func (w *world) setEnv(key, value string) error {
+	w.envOverrides = append(w.envOverrides, key)
+	return os.Setenv(key, value)
+}
+
+func (w *world) setDetectedAgent(agent string) error {
+	cmd.DetectedActor = func() string { return agent }
+	return nil
+}
+
+func (w *world) claimExpiryIsExtended(id string) error {
+	t, err := loadFixtureTask(id)
+	if err != nil {
+		return err
+	}
+	if t.Claim.ExpiresAt == nil {
+		return fmt.Errorf("task %s has no claim expiry", id)
+	}
+	if !t.Claim.ExpiresAt.After(time.Now().UTC()) {
+		return fmt.Errorf("task %s claim expiry %v is not in the future (not extended)", id, t.Claim.ExpiresAt)
 	}
 	return nil
 }

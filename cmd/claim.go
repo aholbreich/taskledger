@@ -25,6 +25,8 @@ func newClaimCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := args[0]
+			actor = ResolveActor(actor)
+
 			ledger, err := requireLedger()
 			if err != nil {
 				return err
@@ -109,9 +111,8 @@ func newClaimCmd() *cobra.Command {
 			return nil
 		},
 	}
-	c.Flags().StringVar(&actor, "actor", "", "Claiming actor (required)")
+	c.Flags().StringVar(&actor, "actor", "", "Claiming actor (resolved from env or auto-detected if unset)")
 	c.Flags().StringVar(&ttl, "ttl", "", "Lease duration, e.g. 60m or 2h (default from config)")
 	c.Flags().BoolVar(&asJSON, "json", false, "Emit JSON output")
-	c.MarkFlagRequired("actor")
 	return c
 }
