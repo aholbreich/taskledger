@@ -116,6 +116,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 	// list.feature preconditions and outcomes
 	ctx.Step(`^the following tasks exist:$`, w.followingTasksExist)
+	ctx.Step(`^the output lists "([^"]*)"$`, w.outputListsTaskID)
 	ctx.Step(`^the output lists "([^"]*)" with status "([^"]*)" and title "([^"]*)"$`, w.outputListsTask)
 	ctx.Step(`^the output lists "([^"]*)" with status "([^"]*)", priority "([^"]*)", claimed by "([^"]*)", and title "([^"]*)"$`, w.outputListsTaskWithColumns)
 	ctx.Step(`^the output does not list "([^"]*)"$`, w.outputDoesNotListTask)
@@ -165,6 +166,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	// claim.feature outcomes
 	ctx.Step(`^"([^"]*)" is claimed by "([^"]*)"$`, w.taskIsClaimedBy)
 	ctx.Step(`^"([^"]*)" is still claimed by "([^"]*)"$`, w.taskIsClaimedBy)
+	ctx.Step(`^"([^"]*)" is no longer claimed by "([^"]*)"$`, w.taskIsNoLongerClaimedBy)
 	ctx.Step(`^"([^"]*)" has status "([^"]*)"$`, w.taskHasSpecificStatus)
 	ctx.Step(`^"([^"]*)" still has status "([^"]*)"$`, w.taskHasSpecificStatus)
 	ctx.Step(`^"([^"]*)" has a non-empty claim expiry$`, w.taskHasNonEmptyClaimExpiry)
@@ -498,6 +500,13 @@ func (w *world) followingTasksExist(table *godog.Table) error {
 		if err := writeFixtureTask(fixture); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (w *world) outputListsTaskID(id string) error {
+	if _, ok := lineContaining(w.stdout.String(), id); !ok {
+		return fmt.Errorf("output does not list %q; got:\n%s", id, w.stdout.String())
 	}
 	return nil
 }
@@ -857,6 +866,17 @@ func (w *world) taskIsClaimedBy(id, actor string) error {
 	}
 	if *t.Claim.Actor != actor {
 		return fmt.Errorf("task %s claimed by %q, expected %q", id, *t.Claim.Actor, actor)
+	}
+	return nil
+}
+
+func (w *world) taskIsNoLongerClaimedBy(id, actor string) error {
+	t, err := loadFixtureTask(id)
+	if err != nil {
+		return err
+	}
+	if t.Claim.Actor != nil && *t.Claim.Actor == actor {
+		return fmt.Errorf("task %s is still claimed by %q", id, actor)
 	}
 	return nil
 }

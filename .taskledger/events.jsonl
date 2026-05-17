@@ -35,3 +35,5 @@
 {"time":"2026-05-17T17:19:46Z","event":"created","task_id":"task-nge","actor":"claude"}
 {"time":"2026-05-17T17:19:49Z","event":"created","task_id":"task-fm4","actor":"claude"}
 {"time":"2026-05-17T17:19:51Z","event":"created","task_id":"task-un0","actor":"claude"}
+{"time":"2026-05-17T17:40:23Z","event":"claimed","task_id":"task-q4h","actor":"pi-agent"}
+{"time":"2026-05-17T17:43:58Z","event":"released","task_id":"task-q4h","actor":"pi-agent"}

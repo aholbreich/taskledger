@@ -15,6 +15,8 @@ func newListCmd() *cobra.Command {
 	var asJSON bool
 	var includeAll bool
 	var claimedBy string
+	var status string
+	var mine bool
 	c := &cobra.Command{
 		Use:   "list",
 		Short: "List tasks in the ledger",
@@ -27,7 +29,7 @@ func newListCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			tasks = filterListTasks(tasks, includeAll, claimedBy)
+			tasks = filterListTasks(tasks, includeAll, claimedBy, status, mine)
 
 			if asJSON {
 				enc := json.NewEncoder(cmd.OutOrStdout())
@@ -46,15 +48,28 @@ func newListCmd() *cobra.Command {
 	c.Flags().BoolVar(&asJSON, "json", false, "Emit JSON output")
 	c.Flags().BoolVarP(&includeAll, "all", "a", false, "Include closed tasks (done and cancelled)")
 	c.Flags().StringVar(&claimedBy, "claimed-by", "", "Only show tasks claimed by this actor")
+	c.Flags().StringVar(&status, "status", "", "Only show tasks with this status (overrides default closed hiding)")
+	c.Flags().BoolVar(&mine, "mine", false, "Only show tasks claimed by the resolved actor")
 	return c
 }
 
-func filterListTasks(tasks []*task.Task, includeAll bool, claimedBy string) []*task.Task {
+func filterListTasks(tasks []*task.Task, includeAll bool, claimedBy string, status string, mine bool) []*task.Task {
+	if mine {
+		resolved := ResolveActor("")
+		claimedBy = resolved
+	}
+
 	filtered := tasks[:0]
 	for _, t := range tasks {
-		if !includeAll && isClosedListStatus(t.Status) {
+		// --status overrides the default closed-task hiding.
+		if status != "" {
+			if t.Status != status {
+				continue
+			}
+		} else if !includeAll && isClosedListStatus(t.Status) {
 			continue
 		}
+
 		if claimedBy != "" && taskClaimActor(t) != claimedBy {
 			continue
 		}

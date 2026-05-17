@@ -19,6 +19,7 @@ func newClaimCmd() *cobra.Command {
 		flagActor string
 		ttl       string
 		asJSON    bool
+		force     bool
 	)
 	c := &cobra.Command{
 		Use:   "claim TASK_ID",
@@ -68,21 +69,23 @@ func newClaimCmd() *cobra.Command {
 				}
 			}
 
-			// Reject if another actor holds an active (non-expired) claim.
-			if t.Claim.Actor != nil && *t.Claim.Actor != resolved {
+			// Reject if another actor holds an active claim (unless --force).
+			if !force && t.Claim.Actor != nil && *t.Claim.Actor != resolved {
 				if t.Claim.ExpiresAt != nil && t.Claim.ExpiresAt.After(time.Now().UTC()) {
 					return NewExitError(5, "task %s is already claimed by %s", taskID, *t.Claim.Actor)
 				}
 			}
 
-			// Must be open.
-			if t.Status != "open" {
+			// Must be open (unless --force).
+			if t.Status != "open" && !force {
 				return NewExitError(4, "task %s is not ready (status %s)", taskID, t.Status)
 			}
 
-			// All dependencies must be done.
-			if err := checkDeps(ledger, t); err != nil {
-				return err
+			// All dependencies must be done (unless --force).
+			if !force {
+				if err := checkDeps(ledger, t); err != nil {
+					return err
+				}
 			}
 
 			return claimTask(ledger, t, ttlDuration, resolved, asJSON, cmd)
@@ -91,6 +94,7 @@ func newClaimCmd() *cobra.Command {
 	c.Flags().StringVar(&flagActor, "actor", "", "Claiming actor (overrides TL_ACTOR / ACTOR_NAME / BEADS_ACTOR)")
 	c.Flags().StringVar(&ttl, "ttl", "", "Lease duration, e.g. 60m or 2h (default from config)")
 	c.Flags().BoolVar(&asJSON, "json", false, "Emit JSON output")
+	c.Flags().BoolVar(&force, "force", false, "Force claim even when another actor holds an active claim")
 	return c
 }
 
