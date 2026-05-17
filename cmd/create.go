@@ -14,6 +14,7 @@ import (
 
 func newCreateCmd() *cobra.Command {
 	var (
+		flagTitle   string
 		description string
 		priority    string
 		taskType    string
@@ -24,9 +25,27 @@ func newCreateCmd() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "create [title] [options]",
 		Short: "Create a new task in the ledger",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			title := args[0]
+			title := flagTitle
+			if title == "" && len(args) > 0 {
+				title = args[0]
+			}
+			if title == "" {
+				return fmt.Errorf("a task title is required (positional argument or --title)")
+			}
+
+			// Normalise and validate priority: l/m/h or low/medium/high.
+			switch priority {
+			case "l", "low":
+				priority = "low"
+			case "m", "medium":
+				priority = "medium"
+			case "h", "high":
+				priority = "high"
+			default:
+				return NewExitError(2, "invalid priority %q: must be l/low, m/medium, or h/high", priority)
+			}
 			ledger, err := requireLedger()
 			if err != nil {
 				return err
@@ -75,6 +94,7 @@ func newCreateCmd() *cobra.Command {
 			return nil
 		},
 	}
+	c.Flags().StringVar(&flagTitle, "title", "", "Task title (required, or positional argument)")
 	c.Flags().StringVarP(&description, "description", "d", "", "Task description (stored under ## Description)")
 	c.Flags().StringVarP(&priority, "priority", "p", "medium", "Task priority (low|medium|high)")
 	c.Flags().StringVarP(&taskType, "type", "t", "", "Task type")

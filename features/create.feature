@@ -36,6 +36,14 @@ Feature: Create a task
     And the new task has no dependencies
     And an event "created" is recorded for the new task
 
+  Scenario: Creating a task with --title flag is equivalent to the positional form
+    Given no tasks exist
+    When the developer runs `tl create --title "Add login form validation"`
+    Then a new task with title "Add login form validation" exists
+    And the new task has status "open"
+    And the new task has no dependencies
+    And an event "created" is recorded for the new task
+
   Scenario: Creating a task records in short title version and priority
     Given no tasks exist
     When the developer runs `tl create "Add login form validation" --priority low`
@@ -61,3 +69,14 @@ Feature: Create a task
     When the developer runs `tl create "Add login form validation" -d "Validate email format." --json`
     Then the JSON output contains the new task identifier
     And the JSON output body contains "Validate email format."
+
+  Scenario: Creating a task with short priority aliases stores the canonical form
+    Given no tasks exist
+    When the developer runs `tl create "short priority" --priority h`
+    Then a new task with title "short priority" exists
+    And the new task has priority "high"
+
+  Scenario: Creating a task with an invalid priority is rejected
+    When the developer runs `tl create "Bad priority" --priority med`
+    Then the command exits with code 2
+    And the output reports that the priority is invalid

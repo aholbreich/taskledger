@@ -1,3 +1,4 @@
+@implemented
 Feature: Claim a task with a lease
   As an agent about to start work
   I want to claim a task for a bounded time

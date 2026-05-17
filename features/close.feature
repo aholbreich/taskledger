@@ -18,6 +18,14 @@ Feature: Close a completed task
     And verification for "task-abc123" passes
     When the agent runs `tl close task-abc123 --actor claude-code:main`
     Then "task-abc123" has status "done"
+    And an event "closed" is recorded for "task-abc123"
+
+  Scenario: An unclaimed task can be closed by any actor
+    Given a task "task-abc123" with status "open"
+    When the developer runs `tl close task-abc123 --actor human`
+    Then "task-abc123" has status "done"
+    And "task-abc123" was closed by "human"
+    And an event "closed" is recorded for "task-abc123"
 
   Scenario: Closing a blocked task is rejected
     Given a task "task-abc123" with status "blocked"
@@ -43,3 +51,16 @@ Feature: Close a completed task
     When the developer runs `tl close task-abc123 --actor human --force`
     Then "task-abc123" has status "done"
     And "task-abc123" was closed by "human"
+    And an event "closed" is recorded for "task-abc123"
+
+  Scenario: Closing an already-done task is rejected
+    Given a task "task-abc123" with status "done"
+    When the developer runs `tl close task-abc123 --actor human`
+    Then the command reports the task is already closed
+    And "task-abc123" still has status "done"
+
+  Scenario: Closing with JSON output returns the updated task
+    Given a task "task-abc123" claimed by "claude-code:main" with no verification commands
+    When the agent runs `tl close task-abc123 --actor claude-code:main --json`
+    Then the JSON output contains status "done"
+    And the JSON output contains identifier "task-abc123"

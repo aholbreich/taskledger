@@ -142,6 +142,21 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the JSON output contains the new task identifier$`, w.jsonContainsTaskIdentifier)
 	ctx.Step(`^the JSON output contains title "([^"]*)"$`, w.jsonStringField("title"))
 	ctx.Step(`^the JSON output contains status "([^"]*)"$`, w.jsonStringField("status"))
+
+	// claim.feature preconditions
+	ctx.Step(`^a ready task "([^"]*)" titled "([^"]*)"$`, w.readyTaskTitled)
+	ctx.Step(`^a ready task "([^"]*)"$`, w.readyTask)
+	ctx.Step(`^a task "([^"]*)" claimed by "([^"]*)" with an active lease$`, w.taskClaimedByWithActiveLease)
+	ctx.Step(`^a task "([^"]*)" with status "([^"]*)"$`, w.taskWithStatus)
+
+	// claim.feature outcomes
+	ctx.Step(`^"([^"]*)" is claimed by "([^"]*)"$`, w.taskIsClaimedBy)
+	ctx.Step(`^"([^"]*)" is still claimed by "([^"]*)"$`, w.taskIsClaimedBy)
+	ctx.Step(`^"([^"]*)" has status "([^"]*)"$`, w.taskHasSpecificStatus)
+	ctx.Step(`^"([^"]*)" has a non-empty claim expiry$`, w.taskHasNonEmptyClaimExpiry)
+	ctx.Step(`^"([^"]*)" is not claimed$`, w.taskIsNotClaimed)
+	ctx.Step(`^the JSON output contains actor "([^"]*)"$`, w.jsonClaimActor)
+	ctx.Step(`^the JSON output contains a claim expiry (\d+) minutes after the claim time$`, w.jsonClaimExpiryAfter)
 }
 
 // --- init.feature support -------------------------------------------------
@@ -635,6 +650,158 @@ func (w *world) outputSuggestsRunning(command string) error {
 	}
 	if !strings.Contains(combined, command) {
 		return fmt.Errorf("output does not suggest running %q; got:\n%s", command, combined)
+	}
+	return nil
+}
+
+// --- claim.feature support -----------------------------------------------
+
+func (w *world) readyTaskTitled(id, title string) error {
+	return writeFixtureTask(&task.Task{
+		ID:        id,
+		Title:     title,
+		Status:    "open",
+		Priority:  "medium",
+		CreatedAt: fixtureTime,
+		UpdatedAt: fixtureTime,
+		CreatedBy: "human",
+		DependsOn: []string{},
+		Tags:      []string{},
+		Verify: task.Verify{
+			Commands:         []string{},
+			EvidenceRequired: []string{},
+		},
+	})
+}
+
+func (w *world) readyTask(id string) error {
+	return w.readyTaskTitled(id, id)
+}
+
+func (w *world) taskClaimedByWithActiveLease(id, actor string) error {
+	now := time.Now().UTC().Truncate(time.Second)
+	expires := now.Add(1 * time.Hour)
+	a := actor
+	return writeFixtureTask(&task.Task{
+		ID:        id,
+		Title:     id,
+		Status:    "in_progress",
+		Priority:  "medium",
+		CreatedAt: fixtureTime,
+		UpdatedAt: fixtureTime,
+		CreatedBy: "human",
+		DependsOn: []string{},
+		Tags:      []string{},
+		Claim: task.Claim{
+			Actor:     &a,
+			ClaimedAt: &now,
+			ExpiresAt: &expires,
+		},
+		Verify: task.Verify{
+			Commands:         []string{},
+			EvidenceRequired: []string{},
+		},
+	})
+}
+
+func (w *world) taskWithStatus(id, status string) error {
+	t := &task.Task{
+		ID:        id,
+		Title:     id,
+		Status:    status,
+		Priority:  "medium",
+		CreatedAt: fixtureTime,
+		UpdatedAt: fixtureTime,
+		CreatedBy: "human",
+		DependsOn: []string{},
+		Tags:      []string{},
+		Verify: task.Verify{
+			Commands:         []string{},
+			EvidenceRequired: []string{},
+		},
+	}
+	return writeFixtureTask(t)
+}
+
+func (w *world) taskIsClaimedBy(id, actor string) error {
+	t, err := loadFixtureTask(id)
+	if err != nil {
+		return err
+	}
+	if t.Claim.Actor == nil {
+		return fmt.Errorf("task %s has no claim", id)
+	}
+	if *t.Claim.Actor != actor {
+		return fmt.Errorf("task %s claimed by %q, expected %q", id, *t.Claim.Actor, actor)
+	}
+	return nil
+}
+
+func (w *world) taskHasSpecificStatus(id, status string) error {
+	t, err := loadFixtureTask(id)
+	if err != nil {
+		return err
+	}
+	if t.Status != status {
+		return fmt.Errorf("task %s status is %q, expected %q", id, t.Status, status)
+	}
+	return nil
+}
+
+func (w *world) taskHasNonEmptyClaimExpiry(id string) error {
+	t, err := loadFixtureTask(id)
+	if err != nil {
+		return err
+	}
+	if t.Claim.ExpiresAt == nil {
+		return fmt.Errorf("task %s has no claim expiry", id)
+	}
+	if t.Claim.ExpiresAt.IsZero() {
+		return fmt.Errorf("task %s claim expiry is zero", id)
+	}
+	return nil
+}
+
+func (w *world) taskIsNotClaimed(id string) error {
+	t, err := loadFixtureTask(id)
+	if err != nil {
+		return err
+	}
+	if t.Claim.Actor != nil {
+		return fmt.Errorf("task %s is claimed by %q, expected none", id, *t.Claim.Actor)
+	}
+	return nil
+}
+
+func (w *world) jsonClaimActor(expected string) error {
+	var data struct {
+		Claim struct {
+			Actor *string `json:"actor"`
+		} `json:"claim"`
+	}
+	if err := json.Unmarshal(w.stdout.Bytes(), &data); err != nil {
+		return fmt.Errorf("stdout is not JSON (%v); got: %s", err, w.stdout.String())
+	}
+	if data.Claim.Actor == nil || *data.Claim.Actor != expected {
+		return fmt.Errorf("JSON claim actor = %v, expected %q", data.Claim.Actor, expected)
+	}
+	return nil
+}
+
+func (w *world) jsonClaimExpiryAfter(minutes int) error {
+	var data struct {
+		Claim struct {
+			ClaimedAt time.Time `json:"claimed_at"`
+			ExpiresAt time.Time `json:"expires_at"`
+		} `json:"claim"`
+	}
+	if err := json.Unmarshal(w.stdout.Bytes(), &data); err != nil {
+		return fmt.Errorf("stdout is not JSON (%v); got: %s", err, w.stdout.String())
+	}
+	diff := data.Claim.ExpiresAt.Sub(data.Claim.ClaimedAt)
+	expected := time.Duration(minutes) * time.Minute
+	if diff != expected {
+		return fmt.Errorf("claim expiry is %v after claim time, expected %d minutes (%v)", diff, minutes, expected)
 	}
 	return nil
 }
