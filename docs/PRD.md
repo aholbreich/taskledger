@@ -111,23 +111,7 @@ actor — there is no separate heartbeat command.
 
 ---
 
-## 6. Implementation notes
-
-- **Major libs:** `spf13/cobra` (CLI), `gopkg.in/yaml.v3` (frontmatter),
-  `cucumber/godog` (BDD acceptance tests).
-- **ID generation:** `task-<3 lowercase alphanumeric>`, generated with
-  `crypto/rand` and a collision-retry loop. Namespace ≈ 47k; well above the
-  realistic ceiling for the project sizes TaskLedger targets.
-- **Atomic writes:** task files write to `<id>.md.tmp` and `rename` over the
-  target.
-- **Locking:** a repo-local `.taskledger/.lock` will guard mutating commands.
-  Not yet implemented.
-- **Repository detection:** commands walk upward from CWD to find
-  `.taskledger/`.
-
----
-
-## 7. Success metrics
+## 6. Success metrics
 
 MVP is successful if:
 
@@ -143,7 +127,7 @@ MVP is successful if:
 
 ---
 
-## 8. Key differentiator
+## 7. Key differentiator
 
 The strongest differentiator is not "file-based tasks". It is:
 

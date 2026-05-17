@@ -56,3 +56,24 @@ Rules:
 - Set `TL_ACTOR` when possible so commands can resolve your identity consistently.
 - Ask before editing `AGENTS.md` or other project instruction files.
 - If `.taskledger/` is missing, ask the human whether to run `tl init`.
+
+
+## Implementation notes
+
+- **Major libs:** `spf13/cobra` (CLI), `gopkg.in/yaml.v3` (frontmatter),
+  `cucumber/godog` (BDD acceptance tests).
+- **ID generation:** `task-<3 lowercase alphanumeric>`, generated with
+  `crypto/rand` and a collision-retry loop. Namespace ≈ 47k; well above the
+  realistic ceiling for the project sizes TaskLedger targets.
+- **Atomic writes:** task files write to `<id>.md.tmp` and `rename` over the
+  target.
+- **Locking:** an advisory `flock(2)` on `.taskledger/.lock` (via
+  `github.com/gofrs/flock`) guards mutating commands. Acquired once at
+  command start, held across the read-modify-write, released on exit (or
+  via deferred unlock). Lock contention surfaces as exit code 7 after a
+  5-second wait. Read commands need no lock — task files use `.tmp` +
+  atomic `rename`, and `events.jsonl` uses `O_APPEND`.
+- **Repository detection:** commands walk upward from CWD to find
+  `.taskledger/`.
+
+---

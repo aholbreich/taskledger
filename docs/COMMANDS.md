@@ -221,3 +221,12 @@ Commands that need ledger state are non-interactive for agent safety. If
 TaskLedger is not initialized in this repository.
 Run `tl init` from the repository root to create .taskledger/.
 ```
+
+## Lock contention
+
+Mutating commands acquire an advisory `flock(2)` on `.taskledger/.lock` for
+the duration of the read-modify-write. If another `tl` process holds the
+lock for more than 5 seconds, the command exits with code `7` and reports
+the contention. Re-run the command; the underlying race that exit code 7
+protects against (two agents both succeeding on the same `tl claim`, lost
+notes from concurrent writers) does not occur.
