@@ -33,6 +33,12 @@ func newNoteCmd() *cobra.Command {
 				return err
 			}
 
+			release, err := acquireLock(ledger)
+			if err != nil {
+				return err
+			}
+			defer release()
+
 			t, err := store.Read(ledger, taskID)
 			if err != nil {
 				return err

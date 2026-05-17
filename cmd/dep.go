@@ -60,6 +60,12 @@ func depAdd(_ *cobra.Command, args []string, on string) error {
 		return err
 	}
 
+	release, err := acquireLock(ledger)
+	if err != nil {
+		return err
+	}
+	defer release()
+
 	src, err := store.Read(ledger, sourceID)
 	if errors.Is(err, store.ErrTaskNotFound) {
 		return NewExitError(3, "task %s not found", sourceID)
@@ -104,6 +110,12 @@ func depRemove(_ *cobra.Command, args []string, on string) error {
 	if err != nil {
 		return err
 	}
+
+	release, err := acquireLock(ledger)
+	if err != nil {
+		return err
+	}
+	defer release()
 
 	src, err := store.Read(ledger, sourceID)
 	if errors.Is(err, store.ErrTaskNotFound) {

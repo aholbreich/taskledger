@@ -38,6 +38,12 @@ func newClaimCmd() *cobra.Command {
 				return err
 			}
 
+			release, err := acquireLock(ledger)
+			if err != nil {
+				return err
+			}
+			defer release()
+
 			cfg, err := repo.LoadConfig(ledger)
 			if err != nil {
 				return err

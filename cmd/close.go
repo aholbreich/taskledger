@@ -35,6 +35,12 @@ func newCloseCmd() *cobra.Command {
 				return err
 			}
 
+			release, err := acquireLock(ledger)
+			if err != nil {
+				return err
+			}
+			defer release()
+
 			t, err := store.Read(ledger, taskID)
 			if errors.Is(err, store.ErrTaskNotFound) {
 				return NewExitError(3, "task %s not found", taskID)

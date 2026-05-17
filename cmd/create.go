@@ -51,6 +51,12 @@ func newCreateCmd() *cobra.Command {
 				return err
 			}
 
+			release, err := acquireLock(ledger)
+			if err != nil {
+				return err
+			}
+			defer release()
+
 			id, err := store.NewID(ledger)
 			if err != nil {
 				return err
