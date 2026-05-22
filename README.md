@@ -2,8 +2,7 @@
 
 > A Git-native task ledger for humans and AI coding agents.
 
-TaskLedger (`tl`) stores tasks as Markdown files with YAML frontmatter inside your repository, gives agents a dependency-aware ready queue, supports safe claim leases with automatic actor resolution, and records every change in an
-append-only event journal.
+Task ledger (`tl`) stores tasks as Markdown files with YAML frontmatter inside your repository, gives agents a dependency-aware ready queue, supports safe claim leases with automatic actor resolution, and records every change in an append-only event journal. The Handover work between agents (humans) can be task/story centric by utilizing notes feature.
 
 No daemon. No hidden database. No automatic push. No AGENTS.md magic.
 
