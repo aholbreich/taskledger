@@ -29,7 +29,7 @@ Rules:
 - Do not write vague `Then` steps.
 - Do not include step definitions in feature files unless explicitly requested.
 
-## TaskLedger Workflow
+## tl tool Workflow
 
 This repository uses TaskLedger (`tl`) for local task coordination between humans and agents.
 
