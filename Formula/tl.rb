@@ -6,7 +6,7 @@
 # Install from source (HEAD):
 #   brew install --HEAD aholbreich/taskledger/tl
 #
-class Taskledger < Formula
+class Tl < Formula
   desc "Git-native task ledger for human and AI agent coordination"
   homepage "https://github.com/aholbreich/tl"
   license "MIT"
@@ -35,7 +35,7 @@ class Taskledger < Formula
   # --- HEAD install (build from source) ---
   head "https://github.com/aholbreich/tl.git", branch: "main"
 
-  depends_on "go" => :build
+  depends_on "go" => :build if build.head?
 
   def install
     if build.head?
