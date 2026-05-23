@@ -4,7 +4,7 @@ title: make repository push work like it works with adr-tool
 status: open
 priority: medium
 created_at: 2026-05-17T20:49:54Z
-updated_at: 2026-05-22T21:04:26Z
+updated_at: 2026-05-23T20:39:40Z
 created_by: human
 assignee: null
 depends_on: []
@@ -44,3 +44,9 @@ repo's Makefile is already "adapted from adr-tool").
 `.github/workflows/release.yaml` (fires on any tag, currently works) and
 `release.yml` (fires only on `v*` tags, never runs because tags are unprefixed,
 e.g. `0.4.1`). Worth reconciling, but track separately from the RPM work.
+
+## Notes
+
+### 2026-05-23T20:39:40Z - pi:rpm-publish
+
+Prepared RPM publishing pipeline for tl: added RPM build script/Makefile target, release job gated by UPDATE_RPM_REPO using RPM_REPO_TOKEN, package name tl installing /usr/bin/tl. Local go test ./... passes and local RPM build verified with rpm -qip/-qlp. End-to-end dnf install still needs verification after the next tagged release publishes to rpm-repo.

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"encoding/json"
-	"github.com/aholbreich/taskledger/internal/task"
+	"github.com/aholbreich/tl/internal/task"
 	"github.com/cucumber/godog"
 )
 

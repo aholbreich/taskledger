@@ -10,6 +10,7 @@
 
 # Cross-platform build & release artifacts
 /build/
+/dist/
 /tl-*.tar.gz
 /tl-*.zip
 

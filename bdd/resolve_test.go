@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aholbreich/taskledger/internal/task"
+	"github.com/aholbreich/tl/internal/task"
 	"github.com/cucumber/godog"
 )
 

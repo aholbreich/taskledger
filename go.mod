@@ -1,4 +1,4 @@
-module github.com/aholbreich/taskledger
+module github.com/aholbreich/tl
 
 go 1.25.9
 

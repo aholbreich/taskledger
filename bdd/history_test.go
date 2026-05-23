@@ -9,7 +9,7 @@ import (
 
 	"github.com/cucumber/godog"
 
-	"github.com/aholbreich/taskledger/internal/events"
+	"github.com/aholbreich/tl/internal/events"
 )
 
 // --- history.feature support ---------------------------------------------

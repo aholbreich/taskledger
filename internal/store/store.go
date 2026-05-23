@@ -12,8 +12,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/aholbreich/taskledger/internal/repo"
-	"github.com/aholbreich/taskledger/internal/task"
+	"github.com/aholbreich/tl/internal/repo"
+	"github.com/aholbreich/tl/internal/task"
 )
 
 const (

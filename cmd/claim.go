@@ -8,10 +8,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/aholbreich/taskledger/internal/events"
-	"github.com/aholbreich/taskledger/internal/repo"
-	"github.com/aholbreich/taskledger/internal/store"
-	"github.com/aholbreich/taskledger/internal/task"
+	"github.com/aholbreich/tl/internal/events"
+	"github.com/aholbreich/tl/internal/repo"
+	"github.com/aholbreich/tl/internal/store"
+	"github.com/aholbreich/tl/internal/task"
 )
 
 func newClaimCmd() *cobra.Command {

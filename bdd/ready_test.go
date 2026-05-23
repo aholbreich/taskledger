@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aholbreich/taskledger/internal/task"
+	"github.com/aholbreich/tl/internal/task"
 )
 
 // --- ready.feature support ------------------------------------------------

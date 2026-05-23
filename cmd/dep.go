@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/aholbreich/taskledger/internal/events"
-	"github.com/aholbreich/taskledger/internal/store"
+	"github.com/aholbreich/tl/internal/events"
+	"github.com/aholbreich/tl/internal/store"
 )
 
 func newDepCmd() *cobra.Command {

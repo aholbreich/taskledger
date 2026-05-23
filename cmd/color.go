@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	internalcolor "github.com/aholbreich/taskledger/internal/color"
+	internalcolor "github.com/aholbreich/tl/internal/color"
 )
 
 func commandColorEnabled(cmd *cobra.Command) bool {

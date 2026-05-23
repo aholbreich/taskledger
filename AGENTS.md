@@ -31,7 +31,7 @@ Rules:
 
 ## tl tool Workflow
 
-This repository uses TaskLedger (`tl`) for local task coordination between humans and agents.
+This repository uses task ledger tool (`tl`) for local task coordination between humans and agents.
 
 Set `TL_ACTOR` once at the start of your session so you don't need `--actor` on each command:
 

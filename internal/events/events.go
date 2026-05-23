@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/aholbreich/taskledger/internal/repo"
+	"github.com/aholbreich/tl/internal/repo"
 )
 
 // Event is a single line in events.jsonl.

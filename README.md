@@ -39,10 +39,10 @@ enabled=1
 gpgcheck=0' | sudo tee /etc/yum.repos.d/holbreich.repo
 ```
 
-Install TaskLedger:
+Install `tl`:
 
 ```sh
-sudo dnf install taskledger
+sudo dnf install tl
 tl --version
 ```
 
@@ -52,8 +52,8 @@ If you run into issues with the RPM repository, see the
 ### From source
 
 ```sh
-git clone https://github.com/aholbreich/taskledger
-cd taskledger
+git clone https://github.com/aholbreich/tl
+cd tl
 make install                # installs `tl` to $HOME/bin
 ```
 

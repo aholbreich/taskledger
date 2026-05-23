@@ -1,6 +1,6 @@
 package main
 
-import "github.com/aholbreich/taskledger/cmd"
+import "github.com/aholbreich/tl/cmd"
 
 // version is injected at build time via -ldflags "-X main.version=<value>".
 var version = "dev"

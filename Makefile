@@ -32,6 +32,9 @@ install: test build
 	install -m 0755 $(BINARY_NAME) $(INSTALL_DIR)/$(BINARY_NAME)
 	@echo "Installed $(BINARY_NAME) to $(INSTALL_DIR)/$(BINARY_NAME)"
 
+# Build a local RPM package in dist/rpm/.
+rpm:
+	bash .github/scripts/build-rpm.sh
 
 get-version:
 	@echo $(VERSION)-$(COUNT)-$(COMMIT_HASH)

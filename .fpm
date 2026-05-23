@@ -1,10 +1,10 @@
 -s dir
 -t rpm
---name taskledger
+--name tl
 --architecture x86_64
---prefix /usr/local/bin
---url "https://github.com/aholbreich/taskledger"
+--url "https://github.com/aholbreich/tl"
 --maintainer "alexander@holbreich.org"
 --vendor "https://alexander.holbreich.org"
 --category "Development/Tools"
---description "TaskLedger - A Git-native task ledger for humans and AI coding agents."
+--license MIT
+--description "Git-native task ledger for human and AI agent coordination"

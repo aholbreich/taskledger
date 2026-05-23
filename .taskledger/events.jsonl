@@ -8,3 +8,6 @@
 {"time":"2026-05-17T21:06:38Z","event":"created","task_id":"task-pnr","actor":"human"}
 {"time":"2026-05-22T21:04:43Z","event":"dependency_added","task_id":"task-pnr"}
 {"time":"2026-05-22T21:11:13Z","event":"created","task_id":"task-dsp","actor":"human"}
+{"time":"2026-05-23T20:35:56Z","event":"claimed","task_id":"task-0qw","actor":"pi:rpm-publish"}
+{"time":"2026-05-23T20:39:40Z","event":"note_added","task_id":"task-0qw","actor":"pi:rpm-publish"}
+{"time":"2026-05-23T20:39:40Z","event":"released","task_id":"task-0qw","actor":"pi:rpm-publish"}

@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aholbreich/taskledger/cmd"
+	"github.com/aholbreich/tl/cmd"
 	"path/filepath"
 )
 

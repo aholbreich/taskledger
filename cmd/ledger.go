@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/aholbreich/taskledger/internal/store"
+	"github.com/aholbreich/tl/internal/store"
 )
 
 func requireLedger() (string, error) {
