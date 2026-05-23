@@ -7,3 +7,4 @@
 {"time":"2026-05-17T21:06:24Z","event":"closed","task_id":"task-55l","actor":"pi-agent"}
 {"time":"2026-05-17T21:06:38Z","event":"created","task_id":"task-pnr","actor":"human"}
 {"time":"2026-05-22T21:04:43Z","event":"dependency_added","task_id":"task-pnr"}
+{"time":"2026-05-22T21:11:13Z","event":"created","task_id":"task-dsp","actor":"human"}
