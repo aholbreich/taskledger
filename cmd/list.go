@@ -39,7 +39,7 @@ func newListCmd() *cobra.Command {
 			if asJSON {
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
-				return enc.Encode(tasks)
+				return enc.Encode(compactTasksJSON(tasks))
 			}
 
 			var rendered bytes.Buffer

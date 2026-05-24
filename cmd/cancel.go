@@ -61,11 +61,7 @@ func newCancelCmd() *cobra.Command {
 			t.UpdatedAt = now
 			t.Claim = task.Claim{}
 
-			if t.Body == "" {
-				t.Body = "## Notes\n"
-			}
-			ts := now.Format(time.RFC3339)
-			t.Body += fmt.Sprintf("\n### %s — cancelled\n%s\n", ts, message)
+			t.Body = task.AppendNote(t.Body, now, resolved, "cancelled", message)
 
 			if err := store.Write(ledger, t); err != nil {
 				return err

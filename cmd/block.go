@@ -43,12 +43,7 @@ func newBlockCmd() *cobra.Command {
 			t.UpdatedAt = now
 			t.Claim = task.Claim{}
 
-			// Append the reason as a note header.
-			if t.Body == "" {
-				t.Body = "## Notes\n"
-			}
-			ts := now.Format(time.RFC3339)
-			t.Body += fmt.Sprintf("\n### %s\n%s\n", ts, message)
+			t.Body = task.AppendNote(t.Body, now, resolved, "blocked", message)
 
 			if err := store.Write(ledger, t); err != nil {
 				return err

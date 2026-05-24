@@ -42,7 +42,7 @@ List active tasks in the ledger, sorted by priority then identifier. Closed
 statuses (`done`, `cancelled`) are hidden by default. Passing `--status`
 with a closed status reveals matching tasks without needing `--all`. Human
 output includes `ID`, `Status`, `Priority`, `Claimed By`, and `Title`.
-When color is enabled, priority values are colored (`high` red, `medium` yellow, `low` blue), and `--all` dims closed-task rows.
+When color is enabled, priority values are colored (`high` red, `medium` yellow, `low` blue), and `--all` dims closed-task rows. JSON output is compact: it omits the raw Markdown `body` and includes parsed `description` and `notes` fields when present.
 
 ```
 -a, --all                Include closed tasks (done and cancelled)
@@ -57,6 +57,7 @@ When color is enabled, priority values are colored (`high` red, `medium` yellow,
 
 Show a task in detail. Human output includes the identifier, title, status,
 priority, dependencies, claim state, and Markdown body content such as notes.
+JSON output keeps the raw Markdown `body` for compatibility and also includes parsed `description` and `notes` fields when present.
 When color is enabled, field labels are dimmed, field values are bold,
 status/priority values are colorized, and Markdown headings in the body are bright blue.
 Accepts both full IDs (`task-k5g`) and bare short codes (`k5g`).
@@ -69,7 +70,7 @@ Accepts both full IDs (`task-k5g`) and bare short codes (`k5g`).
 
 List tasks that are ready to be claimed. A task is ready when it is `open`
 (or `in_progress` with an expired claim), all dependencies are `done`, and
-no active claim exists.
+no active claim exists. JSON output is compact: it omits the raw Markdown `body` and includes parsed `description` and `notes` fields when present.
 
 Use `--tag` to narrow the queue to a role-ish dimension (review, docs,
 arch, etc.). See [`../.decisions/0001-multi-agent-coordination-via-tags.md`](../.decisions/0001-multi-agent-coordination-via-tags.md)
@@ -118,9 +119,7 @@ Idempotent — removing a non-existent dependency is a no-op.
 
 ## `tl note TASK_ID`
 
-Append a timestamped note to a task's body under a `## Notes` section. Notes
-are the human-facing audit trail — use them for progress updates, handoff
-context, and decision records.
+Append a timestamped note to a task's body under a `## Notes` section. New notes use the canonical bullet format `- <timestamp> [<actor>] <kind>: <message>`; normal `tl note` entries use kind `note`, while lifecycle commands use kinds such as `blocked`, `cancelled`, and `resolved`. Notes are the human-facing audit trail — use them for progress updates, handoff context, and decision records.
 
 ```
 -m, --message            Note message (required)

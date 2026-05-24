@@ -98,6 +98,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	// --- per-feature step registration ----------------------------------
 	initializeInitSteps(ctx, w)
 	initializeCreateSteps(ctx, w)
+	initializeBulkJSONSteps(ctx, w)
 	initializeListSteps(ctx, w)
 	initializeShowSteps(ctx, w)
 	initializeLedgerRequiredSteps(ctx, w)
@@ -105,6 +106,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	initializeActorSteps(ctx, w)
 	initializeReadySteps(ctx, w)
 	initializeNoteSteps(ctx, w)
+	initializeNotesFormatSteps(ctx, w)
 	initializeStaleSteps(ctx, w)
 	initializeHistorySteps(ctx, w)
 	initializeAgentsSteps(ctx, w)

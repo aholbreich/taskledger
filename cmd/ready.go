@@ -43,7 +43,7 @@ func newReadyCmd() *cobra.Command {
 			if asJSON {
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
-				return enc.Encode(ready)
+				return enc.Encode(compactTasksJSON(ready))
 			}
 
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)

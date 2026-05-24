@@ -25,3 +25,11 @@
 {"time":"2026-05-24T15:31:46Z","event":"claimed","task_id":"task-8ms","actor":"pi:rename-taskledger"}
 {"time":"2026-05-24T15:36:20Z","event":"note_added","task_id":"task-8ms","actor":"pi:rename-taskledger"}
 {"time":"2026-05-24T15:36:20Z","event":"closed","task_id":"task-8ms","actor":"pi:rename-taskledger"}
+{"time":"2026-05-24T15:52:45Z","event":"created","task_id":"task-7qf","actor":"human"}
+{"time":"2026-05-24T15:52:48Z","event":"claimed","task_id":"task-7qf","actor":"pi:notes-format"}
+{"time":"2026-05-24T15:58:52Z","event":"note_added","task_id":"task-7qf","actor":"pi:notes-format"}
+{"time":"2026-05-24T15:58:52Z","event":"closed","task_id":"task-7qf","actor":"pi:notes-format"}
+{"time":"2026-05-24T16:15:02Z","event":"created","task_id":"task-ir9","actor":"human"}
+{"time":"2026-05-24T16:15:02Z","event":"claimed","task_id":"task-ir9","actor":"pi:compact-json"}
+{"time":"2026-05-24T16:16:45Z","event":"note_added","task_id":"task-ir9","actor":"pi:compact-json"}
+{"time":"2026-05-24T16:16:45Z","event":"closed","task_id":"task-ir9","actor":"pi:compact-json"}

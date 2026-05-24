@@ -29,7 +29,6 @@ func (w *world) taskHasNoteFrom(id, actor string) error {
 	if err != nil {
 		return err
 	}
-	// Look for a note header containing the actor name.
 	idx := strings.Index(t.Body, "## Notes")
 	if idx < 0 {
 		return fmt.Errorf("task %s has no ## Notes section; body:\n%s", id, t.Body)
@@ -37,7 +36,12 @@ func (w *world) taskHasNoteFrom(id, actor string) error {
 	notesSection := t.Body[idx:]
 	found := false
 	for _, line := range strings.Split(notesSection, "\n") {
-		if strings.HasPrefix(strings.TrimSpace(line), "### ") && strings.Contains(line, " - "+actor) {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "- ") && strings.Contains(line, "["+actor+"]") {
+			found = true
+			break
+		}
+		if strings.HasPrefix(line, "### ") && strings.Contains(line, " - "+actor) {
 			found = true
 			break
 		}
@@ -73,8 +77,16 @@ func (w *world) noteHasTimestamp() error {
 	hasTimestamp := false
 	for _, line := range strings.Split(notesSection, "\n") {
 		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "- ") {
+			parts := strings.Fields(strings.TrimPrefix(line, "- "))
+			if len(parts) >= 1 {
+				if _, err := time.Parse(time.RFC3339, strings.TrimSpace(parts[0])); err == nil {
+					hasTimestamp = true
+					break
+				}
+			}
+		}
 		if strings.HasPrefix(line, "### ") {
-			// Format: "### 2026-05-17T10:30:00Z - actor"
 			parts := strings.SplitN(strings.TrimPrefix(line, "### "), " - ", 2)
 			if len(parts) >= 1 {
 				if _, err := time.Parse(time.RFC3339, strings.TrimSpace(parts[0])); err == nil {

@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/aholbreich/tl/internal/events"
 	"github.com/aholbreich/tl/internal/store"
+	"github.com/aholbreich/tl/internal/task"
 )
 
 func newNoteCmd() *cobra.Command {
@@ -45,16 +45,8 @@ func newNoteCmd() *cobra.Command {
 			}
 
 			now := time.Now().UTC().Truncate(time.Second)
-			ts := now.Format(time.RFC3339)
 
-			// Append note to body.
-			body := strings.TrimRight(t.Body, "\n")
-			note := fmt.Sprintf("\n\n## Notes\n\n### %s - %s\n\n%s\n", ts, actor, message)
-			if strings.Contains(body, "## Notes") {
-				// Already has a Notes section — append entry under it.
-				note = fmt.Sprintf("\n### %s - %s\n\n%s\n", ts, actor, message)
-			}
-			t.Body = body + note
+			t.Body = task.AppendNote(t.Body, now, actor, "note", message)
 			t.UpdatedAt = now
 
 			if err := store.Write(ledger, t); err != nil {

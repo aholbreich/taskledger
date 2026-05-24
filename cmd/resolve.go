@@ -9,6 +9,7 @@ import (
 
 	"github.com/aholbreich/tl/internal/events"
 	"github.com/aholbreich/tl/internal/store"
+	"github.com/aholbreich/tl/internal/task"
 )
 
 func newResolveCmd() *cobra.Command {
@@ -43,11 +44,8 @@ func newResolveCmd() *cobra.Command {
 			t.UpdatedAt = now
 			t.Pending = nil
 
-			if t.Body == "" {
-				t.Body = "## Notes\n"
-			}
-			ts := now.Format(time.RFC3339)
-			t.Body += fmt.Sprintf("\n### %s — resolved\n%s\n", ts, answer)
+			resolved := ResolveActor("")
+			t.Body = task.AppendNote(t.Body, now, resolved, "resolved", answer)
 
 			if err := store.Write(ledger, t); err != nil {
 				return err
@@ -55,7 +53,7 @@ func newResolveCmd() *cobra.Command {
 			if err := events.Append(ledger, events.Event{
 				Event:  "pending_resolved",
 				TaskID: t.ID,
-				Actor:  ResolveActor(""),
+				Actor:  resolved,
 			}); err != nil {
 				return err
 			}

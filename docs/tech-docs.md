@@ -101,6 +101,5 @@ status: blocked
 ```markdown
 ## Notes
 
-- 2026-05-17T02:11:08Z claude-code:main: Blocked — waiting on upstream
-  library release (tracking GH issue 412).
+- 2026-05-17T02:11:08Z [claude-code:main] blocked: Waiting on upstream library release (tracking GH issue 412).
 ```

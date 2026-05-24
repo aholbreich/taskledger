@@ -1,6 +1,8 @@
 package task
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 )
@@ -134,5 +136,89 @@ func TestUnmarshalMissingFrontmatter(t *testing.T) {
 	_, err := UnmarshalMarkdown([]byte("not a task file"))
 	if err == nil {
 		t.Error("expected error for missing frontmatter")
+	}
+}
+
+func TestAppendNoteUsesCanonicalBulletFormat(t *testing.T) {
+	when := time.Date(2026, 5, 24, 15, 36, 20, 0, time.UTC)
+	body := "## Description\n\nSome description.\n"
+
+	got := AppendNote(body, when, "pi:notes-format", "blocked", "Waiting\nfor input.")
+
+	want := "## Notes\n\n- 2026-05-24T15:36:20Z [pi:notes-format] blocked: Waiting for input."
+	if !strings.Contains(got, want) {
+		t.Fatalf("AppendNote() missing canonical note %q; got:\n%s", want, got)
+	}
+}
+
+func TestParseBodyExtractsDescriptionAndCanonicalNotes(t *testing.T) {
+	body := "## Description\n\nSome description.\n\n## Notes\n\n- 2026-05-24T15:36:20Z [pi:notes-format] note: Verified locally.\n"
+
+	parsed := ParseBody(body)
+
+	if parsed.Description != "Some description." {
+		t.Fatalf("Description = %q", parsed.Description)
+	}
+	if len(parsed.Notes) != 1 {
+		t.Fatalf("Notes len = %d", len(parsed.Notes))
+	}
+	note := parsed.Notes[0]
+	if note.Actor != "pi:notes-format" || note.Kind != "note" || note.Message != "Verified locally." {
+		t.Fatalf("Note = %#v", note)
+	}
+	if !note.Time.Equal(time.Date(2026, 5, 24, 15, 36, 20, 0, time.UTC)) {
+		t.Fatalf("Note time = %s", note.Time)
+	}
+}
+
+func TestParseNotesSupportsLegacyHeadings(t *testing.T) {
+	body := "## Notes\n\n### 2026-05-24T15:36:20Z - pi:legacy\n\nOld note.\n\n### 2026-05-24T15:40:00Z — cancelled\n\nNo longer needed.\n"
+
+	notes := ParseBody(body).Notes
+
+	if len(notes) != 2 {
+		t.Fatalf("Notes len = %d", len(notes))
+	}
+	if notes[0].Actor != "pi:legacy" || notes[0].Kind != "note" || notes[0].Message != "Old note." {
+		t.Fatalf("legacy actor note = %#v", notes[0])
+	}
+	if notes[1].Kind != "cancelled" || notes[1].Message != "No longer needed." {
+		t.Fatalf("legacy lifecycle note = %#v", notes[1])
+	}
+}
+
+func TestTaskJSONIncludesParsedBodyFields(t *testing.T) {
+	when := time.Date(2026, 5, 24, 15, 36, 20, 0, time.UTC)
+	task := &Task{
+		ID:        "task-json",
+		Title:     "JSON task",
+		Status:    "open",
+		Priority:  "medium",
+		CreatedAt: when,
+		UpdatedAt: when,
+		CreatedBy: "human",
+		DependsOn: []string{},
+		Tags:      []string{},
+		Body:      "## Description\n\nSome description.\n\n## Notes\n\n- 2026-05-24T15:36:20Z [pi:notes-format] note: Verified locally.\n",
+	}
+
+	data, err := json.Marshal(task)
+	if err != nil {
+		t.Fatalf("MarshalJSON: %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatalf("Unmarshal JSON: %v", err)
+	}
+	if got["description"] != "Some description." {
+		t.Fatalf("description = %#v", got["description"])
+	}
+	notes, ok := got["notes"].([]any)
+	if !ok || len(notes) != 1 {
+		t.Fatalf("notes = %#v", got["notes"])
+	}
+	note := notes[0].(map[string]any)
+	if note["actor"] != "pi:notes-format" || note["kind"] != "note" || note["message"] != "Verified locally." {
+		t.Fatalf("note = %#v", note)
 	}
 }
