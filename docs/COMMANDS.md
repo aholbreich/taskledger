@@ -66,6 +66,22 @@ Accepts both full IDs (`task-k5g`) and bare short codes (`k5g`).
     --json               Emit JSON output
 ```
 
+## `tl refine TASK_ID`
+
+Update editable fields on an existing task without changing lifecycle status.
+Description updates replace the `## Description` Markdown section and preserve
+other sections such as `## Notes`. Unknown task IDs exit with code `3`; calls
+with no editable fields exit with code `2`.
+
+```
+-t, --title              New task title
+-d, --description        New task description (stored under ## Description)
+    --type               New task type
+-p, --priority           New task priority (l|low, m|medium, h|high)
+    --edit               Open $VISUAL or $EDITOR to edit title, priority, type, and body
+    --json               Emit JSON output
+```
+
 ## `tl ready`
 
 List tasks that are ready to be claimed. A task is ready when it is `open`

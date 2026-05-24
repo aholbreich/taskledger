@@ -92,8 +92,8 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^an initialized task ledger repository$`, w.ledgerInitialized)
 	ctx.Step(`^no tasks exist$`, w.noTasksExist)
 
-	// Shared CLI invocation (handles both "developer" and "agent" actors).
-	ctx.Step("^the (?:developer|agent) runs `tl (.+)`$", w.runTl)
+	// Shared CLI invocation (handles developer/agent phrasings).
+	ctx.Step("^the (?:developer|agent|agent or developer) runs `tl (.+)`$", w.runTl)
 
 	// --- per-feature step registration ----------------------------------
 	initializeInitSteps(ctx, w)
@@ -113,6 +113,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	initializeBlockSteps(ctx, w)
 	initializeCancelSteps(ctx, w)
 	initializeResolveSteps(ctx, w)
+	initializeRefineSteps(ctx, w)
 }
 
 // --- shared CLI invocation ------------------------------------------------

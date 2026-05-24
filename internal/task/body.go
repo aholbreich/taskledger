@@ -29,6 +29,46 @@ var (
 	noteLineRE     = regexp.MustCompile(`^-\s+(\S+)\s+\[([^\]]*)\]\s+([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$`)
 )
 
+// SetDescription replaces the ## Description section, inserts it before other
+// body content if missing, or removes it when description is empty.
+func SetDescription(body, description string) string {
+	section := ""
+	if description != "" {
+		section = "## Description\n\n" + strings.TrimRight(description, "\n")
+	}
+
+	loc := regexp.MustCompile(`(?m)^## Description\s*$`).FindStringIndex(body)
+	if loc == nil {
+		if section == "" {
+			return body
+		}
+		if strings.TrimSpace(body) == "" {
+			return section + "\n"
+		}
+		return section + "\n\n" + strings.TrimLeft(body, "\n")
+	}
+
+	end := len(body)
+	if next := h2HeadingRE.FindStringIndex(body[loc[1]:]); next != nil {
+		end = loc[1] + next[0]
+	}
+
+	var parts []string
+	if prefix := strings.TrimRight(body[:loc[0]], "\n"); prefix != "" {
+		parts = append(parts, prefix)
+	}
+	if section != "" {
+		parts = append(parts, section)
+	}
+	if suffix := strings.TrimLeft(body[end:], "\n"); suffix != "" {
+		parts = append(parts, suffix)
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return strings.Join(parts, "\n\n") + "\n"
+}
+
 // AppendNote appends a normalized one-line bullet note under ## Notes.
 func AppendNote(body string, when time.Time, actor, kind, message string) string {
 	trimmed := strings.TrimRight(body, "\n")

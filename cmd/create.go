@@ -36,16 +36,10 @@ func newCreateCmd() *cobra.Command {
 				return fmt.Errorf("a task title is required (positional argument or --title)")
 			}
 
-			// Normalise and validate priority: l/m/h or low/medium/high.
-			switch priority {
-			case "l", "low":
-				priority = "low"
-			case "m", "medium":
-				priority = "medium"
-			case "h", "high":
-				priority = "high"
-			default:
-				return NewExitError(2, "invalid priority %q: must be l/low, m/medium, or h/high", priority)
+			var err error
+			priority, err = normalizePriority(priority)
+			if err != nil {
+				return err
 			}
 			ledger, err := requireLedger()
 			if err != nil {
@@ -114,4 +108,17 @@ func descriptionBody(description string) string {
 		return ""
 	}
 	return "## Description\n\n" + description + "\n"
+}
+
+func normalizePriority(priority string) (string, error) {
+	switch priority {
+	case "l", "low":
+		return "low", nil
+	case "m", "medium":
+		return "medium", nil
+	case "h", "high":
+		return "high", nil
+	default:
+		return "", NewExitError(2, "invalid priority %q: must be l/low, m/medium, or h/high", priority)
+	}
 }

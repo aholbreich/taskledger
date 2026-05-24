@@ -139,6 +139,22 @@ func TestUnmarshalMissingFrontmatter(t *testing.T) {
 	}
 }
 
+func TestSetDescriptionReplacesDescriptionAndPreservesNotes(t *testing.T) {
+	body := "## Description\n\nOld description.\n\n## Notes\n\n- 2026-05-24T15:36:20Z [pi] note: Keep me.\n"
+
+	got := SetDescription(body, "New description.")
+
+	if !strings.Contains(got, "## Description\n\nNew description.") {
+		t.Fatalf("SetDescription() did not replace description; got:\n%s", got)
+	}
+	if strings.Contains(got, "Old description.") {
+		t.Fatalf("SetDescription() kept old description; got:\n%s", got)
+	}
+	if !strings.Contains(got, "## Notes\n\n- 2026-05-24T15:36:20Z [pi] note: Keep me.") {
+		t.Fatalf("SetDescription() did not preserve notes; got:\n%s", got)
+	}
+}
+
 func TestAppendNoteUsesCanonicalBulletFormat(t *testing.T) {
 	when := time.Date(2026, 5, 24, 15, 36, 20, 0, time.UTC)
 	body := "## Description\n\nSome description.\n"

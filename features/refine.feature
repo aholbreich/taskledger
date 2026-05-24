@@ -1,3 +1,4 @@
+@implemented
 Feature: Refine a task
   As a developer or agent
   I want to change a task's editable fields after it is created
@@ -32,3 +33,4 @@ Feature: Refine a task
     When the developer runs `tl refine task-abc123`
     Then the command exits with code 2
     And the output reports that no fields were given to refine
+

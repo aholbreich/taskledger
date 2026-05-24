@@ -3,8 +3,9 @@ id: task-pnr
 title: Test autocompletion
 status: open
 priority: medium
+type: story
 created_at: 2026-05-17T21:06:38Z
-updated_at: 2026-05-22T21:04:26Z
+updated_at: 2026-05-24T16:44:01Z
 created_by: human
 assignee: null
 depends_on:
@@ -22,7 +23,7 @@ tags: []
 Verify and document the task-ID shell completion delivered in task-3q7.
 
 **Deliverable:**
-- Add automated test coverage for the completion logic — assert the shared
+- Add auto storymated test coverage for the completion logic — assert the shared
   `ValidArgsFunction` returns the expected task IDs for a given ledger state
   (and an empty/partial-match ledger).
 - Manually verify `tl <cmd> <TAB>` completes task IDs in bash, zsh, and fish.
