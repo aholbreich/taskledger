@@ -23,28 +23,32 @@ func newDepCmd() *cobra.Command {
 func newDepAddCmd() *cobra.Command {
 	var on string
 	c := &cobra.Command{
-		Use:   "add TASK_ID --on TASK_ID",
-		Short: "Add a dependency link between tasks",
-		Args:  cobra.ExactArgs(1),
+		Use:               "add TASK_ID --on TASK_ID",
+		Short:             "Add a dependency link between tasks",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return depAdd(cmd, args, on)
 		},
 	}
 	c.Flags().StringVar(&on, "on", "", "Target task this task depends on (required)")
+	_ = c.RegisterFlagCompletionFunc("on", completeTaskIDs)
 	return c
 }
 
 func newDepRemoveCmd() *cobra.Command {
 	var on string
 	c := &cobra.Command{
-		Use:   "remove TASK_ID --on TASK_ID",
-		Short: "Remove a dependency link between tasks",
-		Args:  cobra.ExactArgs(1),
+		Use:               "remove TASK_ID --on TASK_ID",
+		Short:             "Remove a dependency link between tasks",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return depRemove(cmd, args, on)
 		},
 	}
 	c.Flags().StringVar(&on, "on", "", "Target task to drop as a dependency (required)")
+	_ = c.RegisterFlagCompletionFunc("on", completeTaskIDs)
 	return c
 }
 

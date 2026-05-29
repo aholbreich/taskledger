@@ -19,9 +19,10 @@ func newBlockCmd() *cobra.Command {
 		asJSON  bool
 	)
 	c := &cobra.Command{
-		Use:   "block TASK_ID -m REASON",
-		Short: "Mark a task blocked with a reason",
-		Args:  cobra.ExactArgs(1),
+		Use:               "block TASK_ID -m REASON",
+		Short:             "Mark a task blocked with a reason",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := store.NormalizeID(args[0])
 			resolved := ResolveActor(actor)

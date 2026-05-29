@@ -26,9 +26,10 @@ func newRefineCmd() *cobra.Command {
 		asJSON      bool
 	)
 	c := &cobra.Command{
-		Use:   "refine TASK_ID",
-		Short: "Update editable task fields",
-		Args:  cobra.ExactArgs(1),
+		Use:               "refine TASK_ID",
+		Short:             "Update editable task fields",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			flags := cmd.Flags()
 			updateTitle := flags.Changed("title")

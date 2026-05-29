@@ -19,9 +19,10 @@ func newPendingCmd() *cobra.Command {
 		asJSON   bool
 	)
 	c := &cobra.Command{
-		Use:   "pending TASK_ID",
-		Short: "Mark a task as pending human input",
-		Args:  cobra.ExactArgs(1),
+		Use:               "pending TASK_ID",
+		Short:             "Mark a task as pending human input",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := store.NormalizeID(args[0])
 			resolved := ResolveActor(actor)

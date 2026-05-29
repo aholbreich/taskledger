@@ -17,9 +17,10 @@ func newNoteCmd() *cobra.Command {
 		message string
 	)
 	c := &cobra.Command{
-		Use:   "note TASK_ID",
-		Short: "Append a note to a task",
-		Args:  cobra.ExactArgs(1),
+		Use:               "note TASK_ID",
+		Short:             "Append a note to a task",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if message == "" {
 				return fmt.Errorf("--message is required")

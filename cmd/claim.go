@@ -22,9 +22,10 @@ func newClaimCmd() *cobra.Command {
 		force     bool
 	)
 	c := &cobra.Command{
-		Use:   "claim TASK_ID",
-		Short: "Claim a task with a time-limited lease",
-		Args:  cobra.ExactArgs(1),
+		Use:               "claim TASK_ID",
+		Short:             "Claim a task with a time-limited lease",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := store.NormalizeID(args[0])
 

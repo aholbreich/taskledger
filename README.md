@@ -105,6 +105,22 @@ tl close <id>                                                    # mark as done
 Actor identity resolves in order: `--actor` flag > `TL_ACTOR` env >
 `ACTOR_NAME` env > `BEADS_ACTOR` env > agent auto-detection.
 
+### Shell completion
+
+`tl` ships completions for bash, zsh, fish, and PowerShell. Pressing TAB on
+a `TASK_ID` argument suggests the actual task IDs from the current ledger.
+
+```sh
+# bash (current shell)
+source <(tl completion bash)
+# zsh
+tl completion zsh > "${fpath[1]}/_tl"
+# fish
+tl completion fish > ~/.config/fish/completions/tl.fish
+```
+
+`tl completion --help` prints persistent-install instructions for each shell.
+
 ---
 
 ## Commands

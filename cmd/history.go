@@ -19,9 +19,10 @@ func newHistoryCmd() *cobra.Command {
 	var asJSON bool
 	var since string
 	c := &cobra.Command{
-		Use:   "history [TASK_ID]",
-		Short: "Show event history for a task or recent ledger activity",
-		Args:  cobra.MaximumNArgs(1),
+		Use:               "history [TASK_ID]",
+		Short:             "Show event history for a task or recent ledger activity",
+		Args:              cobra.MaximumNArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && since == "" {
 				return NewExitError(2, "a task ID or --since duration is required")

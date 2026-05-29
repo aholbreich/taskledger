@@ -21,9 +21,10 @@ func newCancelCmd() *cobra.Command {
 		asJSON  bool
 	)
 	c := &cobra.Command{
-		Use:   "cancel TASK_ID -m REASON",
-		Short: "Cancel a task with a reason",
-		Args:  cobra.ExactArgs(1),
+		Use:               "cancel TASK_ID -m REASON",
+		Short:             "Cancel a task with a reason",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := store.NormalizeID(args[0])
 			resolved := ResolveActor(actor)

@@ -18,9 +18,10 @@ func newResolveCmd() *cobra.Command {
 		asJSON bool
 	)
 	c := &cobra.Command{
-		Use:   "resolve TASK_ID --answer ANSWER",
-		Short: "Answer a pending question and return the task to open",
-		Args:  cobra.ExactArgs(1),
+		Use:               "resolve TASK_ID --answer ANSWER",
+		Short:             "Answer a pending question and return the task to open",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := store.NormalizeID(args[0])
 			if answer == "" {

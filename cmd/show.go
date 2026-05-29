@@ -15,9 +15,10 @@ import (
 func newShowCmd() *cobra.Command {
 	var asJSON bool
 	c := &cobra.Command{
-		Use:   "show TASK_ID",
-		Short: "Show a task in detail",
-		Args:  cobra.ExactArgs(1),
+		Use:               "show TASK_ID",
+		Short:             "Show a task in detail",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ledger, err := requireLedger()
 			if err != nil {

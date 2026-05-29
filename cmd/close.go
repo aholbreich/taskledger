@@ -20,9 +20,10 @@ func newCloseCmd() *cobra.Command {
 		asJSON bool
 	)
 	c := &cobra.Command{
-		Use:   "close TASK_ID",
-		Short: "Close a completed task",
-		Args:  cobra.ExactArgs(1),
+		Use:               "close TASK_ID",
+		Short:             "Close a completed task",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := store.NormalizeID(args[0])
 			resolved := ResolveActor(actor)

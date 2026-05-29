@@ -14,9 +14,10 @@ import (
 func newUnblockCmd() *cobra.Command {
 	var asJSON bool
 	c := &cobra.Command{
-		Use:   "unblock TASK_ID",
-		Short: "Remove a block and return a task to open",
-		Args:  cobra.ExactArgs(1),
+		Use:               "unblock TASK_ID",
+		Short:             "Remove a block and return a task to open",
+		Args:              cobra.ExactArgs(1),
+		ValidArgsFunction: completeTaskIDs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := store.NormalizeID(args[0])
 

@@ -114,6 +114,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	initializeCancelSteps(ctx, w)
 	initializeResolveSteps(ctx, w)
 	initializeRefineSteps(ctx, w)
+	initializeCompletionSteps(ctx, w)
 }
 
 // --- shared CLI invocation ------------------------------------------------
@@ -129,25 +130,31 @@ func (w *world) runTl(args string) error {
 
 // splitArgs splits a CLI argument string while honoring "double-quoted"
 // values (so titles with spaces survive `tl create "Add login form"`).
+// An explicit "" is preserved as an empty positional argument — required for
+// completion scenarios like `tl __complete show ""`.
 func splitArgs(s string) []string {
 	var out []string
 	var cur strings.Builder
 	inQuote := false
+	started := false
 	for i := 0; i < len(s); i++ {
 		ch := s[i]
 		switch {
 		case ch == '"':
 			inQuote = !inQuote
+			started = true
 		case ch == ' ' && !inQuote:
-			if cur.Len() > 0 {
+			if started {
 				out = append(out, cur.String())
 				cur.Reset()
+				started = false
 			}
 		default:
 			cur.WriteByte(ch)
+			started = true
 		}
 	}
-	if cur.Len() > 0 {
+	if started {
 		out = append(out, cur.String())
 	}
 	return out
