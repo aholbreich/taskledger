@@ -1,19 +1,19 @@
 ---
 id: task-oqf
 title: Add a demo (asciinema/gif) to top of README
-status: open
+status: in_progress
 priority: high
 type: feature
 created_at: 2026-05-29T16:52:29Z
-updated_at: 2026-05-29T16:52:29Z
+updated_at: 2026-05-29T19:07:15Z
 created_by: human
 assignee: null
 depends_on: []
 claim:
-  actor: null
-  claimed_at: null
-  expires_at: null
-  heartbeat_at: null
+  actor: pi:promotion
+  claimed_at: 2026-05-29T19:07:15Z
+  expires_at: 2026-05-29T20:07:15Z
+  heartbeat_at: 2026-05-29T19:07:15Z
 tags:
   - docs
   - promotion

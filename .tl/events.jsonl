@@ -125,3 +125,7 @@
 {"time":"2026-05-29T18:45:53Z","event":"note_added","task_id":"task-79e","actor":"claude:badges"}
 {"time":"2026-05-29T18:45:53Z","event":"closed","task_id":"task-79e","actor":"claude:badges"}
 {"time":"2026-05-29T18:58:19Z","event":"claimed","task_id":"task-ppj","actor":"pi:promotion"}
+{"time":"2026-05-29T18:59:42Z","event":"note_added","task_id":"task-ppj","actor":"main-pc"}
+{"time":"2026-05-29T18:59:44Z","event":"claim_renewed","task_id":"task-ppj","actor":"pi:promotion"}
+{"time":"2026-05-29T18:59:44Z","event":"closed","task_id":"task-ppj","actor":"pi:promotion"}
+{"time":"2026-05-29T19:07:15Z","event":"claimed","task_id":"task-oqf","actor":"pi:promotion"}
