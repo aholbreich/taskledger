@@ -1,6 +1,6 @@
 @implemented
 Feature: Initialize a task ledger repository
-  As a developer adopting the tl tool
+  As a developer adopting the tl cli
   I want to set up the ledger inside my Git repository
   So that humans and agents can record and coordinate tasks locally
 

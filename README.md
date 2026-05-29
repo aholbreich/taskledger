@@ -1,4 +1,4 @@
-# tl tool - Task ledger for your repository
+# tl cli - Task ledger for your repository
 
 > A Git-native task ledger for humans and AI coding agents.
 
@@ -7,7 +7,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/aholbreich/tl)](https://goreportcard.com/report/github.com/aholbreich/tl)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Why tl?
+## Why tl cli?
 
 Chat history disappears. TODO files are not dependency-aware. GitHub Issues are remote-first.
 `tl` gives every repository a small local task ledger that both humans and agents can read and update. It anchors the work to be done around one repository or project.
@@ -24,7 +24,7 @@ Chat history disappears. TODO files are not dependency-aware. GitHub Issues are 
 
 ---
 
-## How tl compares
+## How tl cli compares
 
 `tl` shares a category with [Beads](https://github.com/steveyegge/beads) and
 [Backlog.md](https://github.com/MrLesk/Backlog.md): Git-native task trackers for

@@ -1,0 +1,141 @@
+<svg width="1280" height="640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00d4aa"/>
+      <stop offset="100%" stop-color="#00a3ff"/>
+    </linearGradient>
+    <linearGradient id="accentGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00d4aa" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#00a3ff" stop-opacity="0.05"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1a2332" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="dotGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#1a2332"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="640" fill="url(#bg)"/>
+
+  <!-- Terminal grid overlay -->
+  <rect width="1280" height="640" fill="url(#grid)"/>
+
+  <!-- Subtle dot grid for tech aesthetic -->
+  <rect width="1280" height="640" fill="url(#dotGrid)" opacity="0.5"/>
+
+  <!-- Accent glow behind logo -->
+  <ellipse cx="640" cy="260" rx="300" ry="160" fill="url(#accentGlow)"/>
+
+  <!-- Terminal window mockup - top right -->
+  <g transform="translate(800, 60)">
+    <rect x="0" y="0" width="380" height="220" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+    <rect x="0" y="0" width="380" height="32" rx="8" fill="#21262d"/>
+    <rect x="0" y="16" width="380" height="16" fill="#21262d"/>
+    <circle cx="16" cy="16" r="5" fill="#ff5f57"/>
+    <circle cx="34" cy="16" r="5" fill="#ffbd2e"/>
+    <circle cx="52" cy="16" r="5" fill="#28c840"/>
+    <text x="190" y="21" font-family="monospace" font-size="11" fill="#8b949e" text-anchor="middle" font-weight="600">bash</text>
+    <!-- Terminal content -->
+    <text x="16" y="58" font-family="monospace" font-size="13" fill="#00d4aa">$ tl init</text>
+    <text x="16" y="78" font-family="monospace" font-size="13" fill="#8b949e">Initialized task ledger at .tl</text>
+    <text x="16" y="102" font-family="monospace" font-size="13" fill="#00d4aa">$ tl create "Add login"</text>
+    <text x="16" y="122" font-family="monospace" font-size="13" fill="#8b949e">Created task task-hfv</text>
+    <text x="16" y="146" font-family="monospace" font-size="13" fill="#00d4aa">$ tl ready --json</text>
+    <text x="16" y="170" font-family="monospace" font-size="13" fill="#8b949e">[{&quot;id&quot;:&quot;task-hfv&quot;,...}]</text>
+    <!-- Blinking cursor -->
+    <text x="16" y="198" font-family="monospace" font-size="13" fill="#00d4aa">$ <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>█</text>
+  </g>
+
+  <!-- Timeline/list mockup - left side -->
+  <g transform="translate(100, 100)">
+    <rect x="0" y="0" width="320" height="240" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+    <rect x="0" y="0" width="320" height="36" rx="8" fill="#21262d"/>
+    <rect x="0" y="18" width="320" height="18" fill="#21262d"/>
+    <text x="160" y="23" font-family="monospace" font-size="11" fill="#8b949e" text-anchor="middle" font-weight="600">tl list</text>
+
+    <!-- Table header -->
+    <text x="16" y="55" font-family="monospace" font-size="10" fill="#484f58" font-weight="600">ID         STATUS  PRI    TITLE</text>
+    <line x1="16" y1="60" x2="304" y2="60" stroke="#21262d" stroke-width="1"/>
+
+    <!-- Row 1 -->
+    <circle cx="22" cy="79" r="4" fill="#00d4aa"/>
+    <text x="34" y="83" font-family="monospace" font-size="11" fill="#e6edf3">task-hfv</text>
+    <text x="122" y="83" font-family="monospace" font-size="11" fill="#00d4aa">open</text>
+    <text x="162" y="83" font-family="monospace" font-size="11" fill="#58a6ff">high</text>
+    <text x="200" y="83" font-family="monospace" font-size="11" fill="#8b949e">Add login form</text>
+
+    <!-- Row 2 -->
+    <circle cx="22" cy="101" r="4" fill="#d29922"/>
+    <text x="34" y="105" font-family="monospace" font-size="11" fill="#e6edf3">task-9jg</text>
+    <text x="122" y="105" font-family="monospace" font-size="11" fill="#d29922">blocked</text>
+    <text x="162" y="105" font-family="monospace" font-size="11" fill="#8b949e">med</text>
+    <text x="200" y="105" font-family="monospace" font-size="11" fill="#8b949e">Refactor errors</text>
+
+    <!-- Row 3 -->
+    <circle cx="22" cy="119" r="4" fill="#8b949e"/>
+    <text x="34" y="123" font-family="monospace" font-size="11" fill="#e6edf3">task-3k5</text>
+    <text x="122" y="123" font-family="monospace" font-size="11" fill="#8b949e">done</text>
+    <text x="162" y="123" font-family="monospace" font-size="11" fill="#8b949e">low</text>
+    <text x="200" y="123" font-family="monospace" font-size="11" fill="#8b949e">Setup CI</text>
+
+    <!-- Claim badge -->
+    <g transform="translate(16, 150)">
+      <rect x="0" y="0" width="288" height="32" rx="6" fill="#0d1117" stroke="#21262d" stroke-width="1"/>
+      <text x="12" y="20" font-family="monospace" font-size="10" fill="#484f58">CLAIMED BY</text>
+      <text x="90" y="20" font-family="monospace" font-size="11" fill="#00d4aa">agent-a:backend</text>
+      <text x="220" y="20" font-family="monospace" font-size="9" fill="#484f58">lease: 30m</text>
+    </g>
+
+    <!-- Dependencies -->
+    <g transform="translate(16, 195)">
+      <text x="0" y="12" font-family="monospace" font-size="10" fill="#484f58">DEPENDS ON</text>
+      <text x="85" y="12" font-family="monospace" font-size="11" fill="#58a6ff">task-hfv</text>
+    </g>
+  </g>
+
+  <!-- Main logo -->
+  <text x="640" y="360" font-family="'SF Mono','Fira Code','Cascadia Code',monospace" font-size="140" font-weight="900" fill="url(#accent)" text-anchor="middle" filter="url(#glow)">tl</text>
+
+  <!-- Tagline -->
+  <text x="640" y="410" font-family="'SF Pro','Inter','Segoe UI',sans-serif" font-size="20" fill="#8b949e" text-anchor="middle" letter-spacing="2">Git-native task ledger for humans + AI agents</text>
+
+  <!-- Feature pills -->
+  <g transform="translate(640, 460)">
+    <g transform="translate(-200, 0)">
+      <rect x="0" y="0" width="120" height="28" rx="14" fill="#1a2332" stroke="#30363d" stroke-width="1"/>
+      <text x="60" y="18" font-family="monospace" font-size="10" fill="#8b949e" text-anchor="middle">claims with leases</text>
+    </g>
+    <g transform="translate(-70, 0)">
+      <rect x="0" y="0" width="140" height="28" rx="14" fill="#1a2332" stroke="#30363d" stroke-width="1"/>
+      <text x="70" y="18" font-family="monospace" font-size="10" fill="#8b949e" text-anchor="middle">detectable stale work</text>
+    </g>
+    <g transform="translate(80, 0)">
+      <rect x="0" y="0" width="120" height="28" rx="14" fill="#1a2332" stroke="#30363d" stroke-width="1"/>
+      <text x="60" y="18" font-family="monospace" font-size="10" fill="#8b949e" text-anchor="middle">handoff notes</text>
+    </g>
+  </g>
+
+  <!-- Version badge at bottom -->
+  <g transform="translate(640, 520)">
+    <rect x="-60" y="0" width="120" height="22" rx="11" fill="#0d1117" stroke="#30363d" stroke-width="0.5"/>
+    <text x="0" y="14" font-family="monospace" font-size="9" fill="#484f58" text-anchor="middle">git-native · no daemon · MIT</text>
+  </g>
+
+  <!-- Subtle terminal prompt watermark bottom-left -->
+  <g transform="translate(40, 590)" opacity="0.15">
+    <text x="0" y="0" font-family="monospace" font-size="10" fill="#00d4aa">❯ tl ready --json | jq '.[].id'</text>
+  </g>
+</svg>

@@ -21,4 +21,4 @@ tags: []
 
 ### 2026-05-24T15:36:20Z - pi:rename-taskledger
 
-Replaced remaining legacy product-name wording with tl, tl tool, or task ledger phrasing; make bdd and go test ./... passed.
+Replaced remaining legacy product-name wording with tl, tl cli, or task ledger phrasing; make bdd and go test ./... passed.
