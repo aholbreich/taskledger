@@ -17,6 +17,9 @@ type Event struct {
 	Event  string    `json:"event"`
 	TaskID string    `json:"task_id"`
 	Actor  string    `json:"actor,omitempty"`
+	// Value carries an event-specific payload, e.g. the reference string on
+	// reference_added / reference_removed. Omitted when empty.
+	Value string `json:"value,omitempty"`
 }
 
 // Append appends e to the event journal under ledger, stamping the current

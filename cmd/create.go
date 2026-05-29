@@ -19,6 +19,7 @@ func newCreateCmd() *cobra.Command {
 		priority    string
 		taskType    string
 		tags        []string
+		refs        []string
 		actor       string
 		asJSON      bool
 	)
@@ -58,17 +59,18 @@ func newCreateCmd() *cobra.Command {
 			}
 			now := time.Now().UTC().Truncate(time.Second)
 			t := &task.Task{
-				ID:        id,
-				Title:     title,
-				Status:    "open",
-				Priority:  priority,
-				Type:      taskType,
-				CreatedAt: now,
-				UpdatedAt: now,
-				CreatedBy: actor,
-				DependsOn: []string{},
-				Tags:      append([]string{}, tags...),
-				Body:      descriptionBody(description),
+				ID:         id,
+				Title:      title,
+				Status:     "open",
+				Priority:   priority,
+				Type:       taskType,
+				CreatedAt:  now,
+				UpdatedAt:  now,
+				CreatedBy:  actor,
+				DependsOn:  []string{},
+				Tags:       append([]string{}, tags...),
+				References: dedupeStrings(refs),
+				Body:       descriptionBody(description),
 			}
 
 			if err := store.Write(ledger, t); err != nil {
@@ -80,6 +82,16 @@ func newCreateCmd() *cobra.Command {
 				Actor:  actor,
 			}); err != nil {
 				return err
+			}
+			for _, ref := range t.References {
+				if err := events.Append(ledger, events.Event{
+					Event:  "reference_added",
+					TaskID: t.ID,
+					Actor:  actor,
+					Value:  ref,
+				}); err != nil {
+					return err
+				}
 			}
 
 			if asJSON {
@@ -96,9 +108,25 @@ func newCreateCmd() *cobra.Command {
 	c.Flags().StringVarP(&priority, "priority", "p", "medium", "Task priority (low|medium|high)")
 	c.Flags().StringVarP(&taskType, "type", "t", "", "Task type")
 	c.Flags().StringArrayVar(&tags, "tag", nil, "Tag to apply (repeatable)")
+	c.Flags().StringArrayVar(&refs, "ref", nil, "Reference to attach: file path, URL, ticket ID, … (repeatable)")
 	c.Flags().StringVar(&actor, "actor", "human", "Creator actor")
 	c.Flags().BoolVar(&asJSON, "json", false, "Emit JSON output")
 	return c
+}
+
+// dedupeStrings returns the input with duplicates removed, preserving first-seen
+// order. The result is always non-nil so an absent --ref still yields [] in JSON.
+func dedupeStrings(in []string) []string {
+	out := []string{}
+	seen := map[string]bool{}
+	for _, s := range in {
+		if seen[s] {
+			continue
+		}
+		seen[s] = true
+		out = append(out, s)
+	}
+	return out
 }
 
 // descriptionBody wraps a free-text description in a "## Description" Markdown

@@ -60,6 +60,15 @@ func printTaskDetail(out interface{ Write([]byte) (int, error) }, t *task.Task, 
 		}
 	}
 
+	if len(t.References) == 0 {
+		printTaskField(out, useColor, "References", "none")
+	} else {
+		fmt.Fprintf(out, "%s:\n", colorFieldLabel(useColor, "References"))
+		for _, ref := range t.References {
+			fmt.Fprintf(out, "  - %s\n", colorFieldValue(useColor, ref))
+		}
+	}
+
 	if t.Claim.Actor == nil {
 		printTaskField(out, useColor, "Claim", "none")
 	} else {

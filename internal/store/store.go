@@ -126,6 +126,11 @@ func Read(ledger, id string) (*task.Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parse task %s: %w", p, err)
 	}
+	// References uses yaml omitempty, so a task with none unmarshals to nil.
+	// Normalize to an empty slice so JSON output emits [] rather than null.
+	if t.References == nil {
+		t.References = []string{}
+	}
 	return t, nil
 }
 

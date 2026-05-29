@@ -2,6 +2,11 @@
 
 > A Git-native task ledger for humans and AI coding agents.
 
+[![CI](https://github.com/aholbreich/tl/actions/workflows/ci.yaml/badge.svg)](https://github.com/aholbreich/tl/actions/workflows/ci.yaml)
+[![Release](https://img.shields.io/github/v/release/aholbreich/tl)](https://github.com/aholbreich/tl/releases/latest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/aholbreich/tl)](https://goreportcard.com/report/github.com/aholbreich/tl)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 ## Why tl?
 
 Chat history disappears. TODO files are not dependency-aware. GitHub Issues are remote-first.
@@ -159,8 +164,9 @@ tl init                            # create the .tl/ ledger (once per repo)
 tl completion --install            # enable TAB completion for task IDs
 
 # Define work
-tl create "<title>" [-t type -p prio --tag x -d "..."]  # add a task
+tl create "<title>" [-t type -p prio --tag x --ref r -d "..."]  # add a task
 tl refine <id> [-p prio -t title --edit]                # edit an existing task
+tl refine <id> [--add-ref r --remove-ref r]             # attach/detach references
 tl dep add <id> --on <id>                               # declare a dependency
 tl dep remove <id> --on <id>                            # drop one
 

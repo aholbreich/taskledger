@@ -125,6 +125,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	initializeRefineSteps(ctx, w)
 	initializeCompletionSteps(ctx, w)
 	initializeCompletionInstallSteps(ctx, w)
+	initializeReferencesSteps(ctx, w)
 }
 
 // --- shared CLI invocation ------------------------------------------------
@@ -268,6 +269,43 @@ func assertEventRecorded(eventName, taskID string) error {
 
 func assertEventRecordedBy(eventName, taskID, actor string) error {
 	return assertEventRecordedMatching(eventName, taskID, actor)
+}
+
+func assertEventRecordedWithValue(eventName, taskID, value string) error {
+	f, err := os.Open(filepath.Join(".tl", "events.jsonl"))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Bytes()
+		if len(line) == 0 {
+			continue
+		}
+		var e events.Event
+		if err := json.Unmarshal(line, &e); err != nil {
+			return fmt.Errorf("parse event line %q: %w", string(line), err)
+		}
+		if e.Event == eventName && e.TaskID == taskID && e.Value == value {
+			return nil
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+	return fmt.Errorf("no %q event for %q with value %q in journal", eventName, taskID, value)
+}
+
+// containsString reports whether list contains v (bdd-local; mirrors the
+// helper in package cmd, which is not importable here).
+func containsString(list []string, v string) bool {
+	for _, s := range list {
+		if s == v {
+			return true
+		}
+	}
+	return false
 }
 
 func assertEventRecordedMatching(eventName, taskID, actor string) error {

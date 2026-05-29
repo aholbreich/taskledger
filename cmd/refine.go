@@ -22,6 +22,8 @@ func newRefineCmd() *cobra.Command {
 		description string
 		taskType    string
 		priority    string
+		addRefs     []string
+		removeRefs  []string
 		editMode    bool
 		asJSON      bool
 	)
@@ -36,6 +38,8 @@ func newRefineCmd() *cobra.Command {
 			updateDescription := flags.Changed("description")
 			updateType := flags.Changed("type")
 			updatePriority := flags.Changed("priority")
+			hasFieldFlag := updateTitle || updateDescription || updateType || updatePriority
+			hasRefFlag := flags.Changed("add-ref") || flags.Changed("remove-ref")
 
 			taskID := store.NormalizeID(args[0])
 			ledger, err := requireLedger()
@@ -44,13 +48,13 @@ func newRefineCmd() *cobra.Command {
 			}
 
 			if editMode {
-				if updateTitle || updateDescription || updateType || updatePriority {
+				if hasFieldFlag || hasRefFlag {
 					return NewExitError(2, "--edit cannot be combined with field flags")
 				}
 				return refineWithEditor(cmd, ledger, taskID, asJSON)
 			}
 
-			if !updateTitle && !updateDescription && !updateType && !updatePriority {
+			if !hasFieldFlag && !hasRefFlag {
 				return NewExitError(2, "no fields were given to refine")
 			}
 
@@ -84,13 +88,40 @@ func newRefineCmd() *cobra.Command {
 				}
 				t.Priority = normalized
 			}
-			return writeRefinedTask(cmd, ledger, t, asJSON)
+
+			// Reference mutations are idempotent and, like `dep add/remove`,
+			// emit their own events rather than a generic `refined`.
+			refEvents := applyRefMutations(t, addRefs, removeRefs)
+
+			// A refine with only no-op ref flags changes nothing: don't write
+			// or emit events, just report success.
+			if !hasFieldFlag && len(refEvents) == 0 {
+				return reportRefineNoChange(cmd, t, asJSON)
+			}
+
+			t.UpdatedAt = time.Now().UTC().Truncate(time.Second)
+			if err := store.Write(ledger, t); err != nil {
+				return err
+			}
+			if hasFieldFlag {
+				if err := events.Append(ledger, events.Event{Event: "refined", TaskID: t.ID}); err != nil {
+					return err
+				}
+			}
+			for _, e := range refEvents {
+				if err := events.Append(ledger, e); err != nil {
+					return err
+				}
+			}
+			return reportRefined(cmd, t, asJSON)
 		},
 	}
 	c.Flags().StringVarP(&title, "title", "t", "", "Task title")
 	c.Flags().StringVarP(&description, "description", "d", "", "Task description (stored under ## Description)")
 	c.Flags().StringVar(&taskType, "type", "", "Task type")
 	c.Flags().StringVarP(&priority, "priority", "p", "", "Task priority (l|low, m|medium, h|high)")
+	c.Flags().StringArrayVar(&addRefs, "add-ref", nil, "Add a reference (repeatable; idempotent)")
+	c.Flags().StringArrayVar(&removeRefs, "remove-ref", nil, "Remove a reference (repeatable; idempotent)")
 	c.Flags().BoolVar(&editMode, "edit", false, "Open $VISUAL or $EDITOR to edit task fields")
 	c.Flags().BoolVar(&asJSON, "json", false, "Emit JSON output")
 	return c
@@ -167,12 +198,72 @@ func writeRefinedTask(cmd *cobra.Command, ledger string, t *task.Task, asJSON bo
 		return err
 	}
 
+	return reportRefined(cmd, t, asJSON)
+}
+
+// applyRefMutations adds and removes references in place, returning one event
+// per *actual* change. Adding an existing reference or removing a missing one
+// is a no-op and produces no event (mirrors `dep add/remove` idempotency).
+func applyRefMutations(t *task.Task, add, remove []string) []events.Event {
+	var evs []events.Event
+	for _, r := range add {
+		if containsString(t.References, r) {
+			continue
+		}
+		t.References = append(t.References, r)
+		evs = append(evs, events.Event{Event: "reference_added", TaskID: t.ID, Value: r})
+	}
+	for _, r := range remove {
+		if !containsString(t.References, r) {
+			continue
+		}
+		t.References = removeString(t.References, r)
+		evs = append(evs, events.Event{Event: "reference_removed", TaskID: t.ID, Value: r})
+	}
+	return evs
+}
+
+func containsString(list []string, v string) bool {
+	for _, s := range list {
+		if s == v {
+			return true
+		}
+	}
+	return false
+}
+
+// removeString returns list with the first occurrence of v removed, preserving
+// order. The result is non-nil so References stays an empty array, not null.
+func removeString(list []string, v string) []string {
+	out := make([]string, 0, len(list))
+	removed := false
+	for _, s := range list {
+		if !removed && s == v {
+			removed = true
+			continue
+		}
+		out = append(out, s)
+	}
+	return out
+}
+
+func reportRefined(cmd *cobra.Command, t *task.Task, asJSON bool) error {
 	if asJSON {
 		enc := json.NewEncoder(cmd.OutOrStdout())
 		enc.SetIndent("", "  ")
 		return enc.Encode(t)
 	}
 	fmt.Fprintf(cmd.OutOrStdout(), "Refined task %s\n", t.ID)
+	return nil
+}
+
+func reportRefineNoChange(cmd *cobra.Command, t *task.Task, asJSON bool) error {
+	if asJSON {
+		enc := json.NewEncoder(cmd.OutOrStdout())
+		enc.SetIndent("", "  ")
+		return enc.Encode(t)
+	}
+	fmt.Fprintf(cmd.OutOrStdout(), "No changes for %s\n", t.ID)
 	return nil
 }
 

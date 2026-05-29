@@ -25,6 +25,7 @@ func NewRootCmd() *cobra.Command {
 		description string
 		priority    string
 		tags        []string
+		refs        []string
 		asJSON      bool
 	)
 	var root *cobra.Command
@@ -59,6 +60,9 @@ func NewRootCmd() *cobra.Command {
 			for _, t := range tags {
 				createArgs = append(createArgs, "--tag", t)
 			}
+			for _, r := range refs {
+				createArgs = append(createArgs, "--ref", r)
+			}
 			if asJSON {
 				createArgs = append(createArgs, "--json")
 			}
@@ -73,6 +77,7 @@ func NewRootCmd() *cobra.Command {
 	root.Flags().StringVarP(&description, "description", "d", "", "Task description")
 	root.Flags().StringVar(&priority, "priority", "", "Task priority (high|medium|low)")
 	root.Flags().StringArrayVar(&tags, "tag", nil, "Tag for the task (repeatable)")
+	root.Flags().StringArrayVar(&refs, "ref", nil, "Reference for the task: file path, URL, ticket ID, … (repeatable)")
 	root.Flags().BoolVar(&asJSON, "json", false, "Emit JSON output")
 	root.Flags().StringVarP(&title, "title", "t", "", "Task title (if not positional)")
 	root.AddCommand(newInitCmd())

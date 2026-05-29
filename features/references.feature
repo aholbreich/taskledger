@@ -1,3 +1,4 @@
+@implemented
 Feature: Task references
   As a developer or agent
   I want to attach references to a task — file paths, URLs, tickets, ADRs, anything

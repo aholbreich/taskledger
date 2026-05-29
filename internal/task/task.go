@@ -27,6 +27,13 @@ type Task struct {
 	Pending   *Pending  `yaml:"pending,omitempty" json:"pending,omitempty"`
 	Tags      []string  `yaml:"tags" json:"tags"`
 
+	// References are generic strings pointing at related artefacts: file
+	// paths, URLs, ticket IDs, free text. tl stores them verbatim and does
+	// not validate at input time. Omitted from frontmatter when empty;
+	// store.Read normalizes a missing list to an empty slice so JSON always
+	// emits an array.
+	References []string `yaml:"references,omitempty" json:"references"`
+
 	// Body is the Markdown content after the YAML frontmatter. It is excluded
 	// from the YAML encoder (the frontmatter never embeds the body) but is
 	// included in JSON output so consumers see descriptions, notes, etc.

@@ -266,18 +266,49 @@ This repository uses `tl` for local task coordination between humans and agents.
 ---
 
 ## References
+References are a great opportunity to maintain context and keep it close to the task.
+A reference can point to anything: a file path, a URL, a ticket ID, an ADR, a Gherkin feature — anything that helps a human or an LLM find the
+context behind the work. References are plain strings; `tl` stores them verbatim and does not validate them at input time.
 
-> **Coming soon.** Attaching external references to a task (PRs, issues, design
-> docs, file paths) is tracked in `task-reg` and not yet implemented. This
-> section will cover it once the `references` field ships. Until then, put
-> links in the description or a note.
+Attach them at creation with `--ref` (repeatable, like `--tag`):
+
+```sh
+$ tl create "Add login" --ref src/auth/login.go --ref https://github.com/aholbreich/tl/pull/42 --ref JIRA-1234
+Created task task-gn0
+```
+
+`show` lists them between Depends On and Claim:
+
+```sh
+$ tl show task-gn0
+ID: task-gn0
+Title: Add login
+Status: open
+Priority: medium
+Depends On: none
+References:
+  - src/auth/login.go
+  - https://github.com/aholbreich/tl/pull/42
+  - JIRA-1234
+Claim: none
+```
+
+Add and remove later with `refine`. Both are idempotent: adding a reference that already exists, or removing one that isn't there, changes nothing and
+records no event.
+
+```sh
+$ tl refine task-gn0 --add-ref features/login.feature --remove-ref JIRA-1234
+Refined task task-gn0
+```
+
+Each add or remove writes a `reference_added` / `reference_removed` event carrying the reference as its value, so the history shows what was attached and
+when. In `--json`, references are always an array — `[]` when there are none.
 
 ---
 
 ## Setup and housekeeping
 
-**Shell completion.** One step, auto-detecting your shell from `$SHELL`.
-Pressing TAB on a task-ID argument completes against the real IDs in the
+**Shell completion.** One step, auto-detecting your shell from `$SHELL`. Pressing TAB on a task-ID argument completes against the real IDs in the
 current ledger.
 
 ```sh

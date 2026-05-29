@@ -1,11 +1,11 @@
 ---
 id: task-reg
 title: Add references field to task frontmatter
-status: open
+status: done
 priority: medium
 type: feature
 created_at: 2026-05-29T11:29:22Z
-updated_at: 2026-05-29T14:05:17Z
+updated_at: 2026-05-29T18:06:33Z
 created_by: human
 assignee: null
 depends_on: []
@@ -124,3 +124,4 @@ Add `References []string` field to the Task struct in internal/task/task.go with
 - 2026-05-29T11:29:26Z [main-pc] note: Created from traceability analysis. Implements Option C: references field as plain string list. Follows BDD approach — Gherkin first, then implementation. Connected to task-4sh (tl doctor design) as references validation will be part of tl doctor.
 - 2026-05-29T14:04:59Z [main-pc] note: The references field from this task and the external field from the sync PRD are related but distinct concepts. See docs/import-sync-PRD.md section 8 and open question Q19 for the distinction.
 - 2026-05-29T14:05:17Z [claude-code] note: Design refined and Gherkin drafted. features/references.feature has 16 scenarios covering create (single/multi/bare/empty), refine (add/remove/idempotent/mixed), display (frontmatter field between Depends On and Claim; 'none' when empty; JSON array), and events (one per add/remove; idempotent does not emit). Cross-cutting reference validation in tl doctor is sketched in this task's description but the scenarios live in features/references.feature only after both task-reg and task-4sh land — whichever ships second extends the partner's feature.
+- 2026-05-29T18:06:33Z [claude-code:references] note: Implemented the references field end to end. Schema: References []string with yaml:"references,omitempty" json:"references"; store.Read normalizes nil->[] so JSON always emits an array (keeps existing task/marshal tests green and avoids churning the 17 existing task files). Added Event.Value (json:"value,omitempty") to carry the reference on reference_added/reference_removed. CLI: create --ref (+ bare shorthand via root), refine --add-ref/--remove-ref (idempotent, mirror dep add/remove). show renders References between Depends On and Claim ('none' when empty). Events: reference_added per ref on create (with actor) and refine add; reference_removed on refine remove; idempotent ops write nothing and emit no event. refine ref events carry no actor, mirroring dependency_added (refine has no actor plumbing). features/references.feature tagged @implemented; all 17 scenarios green; full suite 205 pass. Docs: usage.md References section un-stubbed, README command listing updated. DEFERRED: tl doctor reference validation (dead file-path detection + --fix) belongs to task-4sh — see note there.
