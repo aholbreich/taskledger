@@ -1,21 +1,22 @@
 ---
 id: task-3q7
 title: add autocompletion for task IDs
-status: open
+status: in_progress
 priority: medium
 type: task
 created_at: 2026-05-17T20:50:50Z
-updated_at: 2026-05-22T21:04:26Z
+updated_at: 2026-05-29T11:02:42Z
 created_by: human
 assignee: null
 depends_on: []
 claim:
-  actor: null
-  claimed_at: null
-  expires_at: null
-  heartbeat_at: null
+  actor: claude-opus-4-7:autocompletion
+  claimed_at: 2026-05-29T11:02:42Z
+  expires_at: 2026-05-29T12:02:42Z
+  heartbeat_at: 2026-05-29T11:02:42Z
 tags: []
 ---
+
 ## Description
 
 Add dynamic shell completion of task IDs as positional arguments. Today
