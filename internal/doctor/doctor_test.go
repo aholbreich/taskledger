@@ -3,6 +3,7 @@ package doctor
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -88,13 +89,56 @@ func TestFrontmatterChecks(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Diagnose: %v", err)
 	}
-	// Expect exactly the four frontmatter errors: title, status, priority, type.
+	// Expect 3 errors (title, status, priority) + 1 warning (type, now fixable).
 	if got := countCategory(diags, CategoryFrontmatter); got != 4 {
 		t.Fatalf("expected 4 frontmatter issues, got %d: %+v", got, diags)
 	}
-	d := findFor(diags, CategoryFrontmatter, "task-bad")
-	if d == nil || d.Severity != SeverityError {
-		t.Fatalf("expected frontmatter error for task-bad, got %+v", d)
+	errors := 0
+	warnings := 0
+	for _, d := range diags {
+		if d.Category != CategoryFrontmatter {
+			continue
+		}
+		if d.Severity == SeverityError {
+			errors++
+		}
+		if d.Severity == SeverityWarning {
+			warnings++
+		}
+	}
+	if errors != 3 {
+		t.Fatalf("expected 3 frontmatter errors (title, status, priority), got %d: %+v", errors, diags)
+	}
+	if warnings != 1 {
+		t.Fatalf("expected 1 frontmatter warning (type), got %d: %+v", warnings, diags)
+	}
+
+	// The empty type issue should be fixable via --fix.
+	typeDiag := findFor(diags, CategoryFrontmatter, "task-bad")
+	if typeDiag != nil && typeDiag.Severity == SeverityError {
+		// findFor returned the first (error) match; search for the warning.
+		for i := range diags {
+			if diags[i].Category == CategoryFrontmatter && diags[i].TaskID == "task-bad" && diags[i].Severity == SeverityWarning {
+				typeDiag = &diags[i]
+				break
+			}
+		}
+	}
+	if typeDiag == nil || !typeDiag.Fixable {
+		t.Fatalf("expected fixable frontmatter warning for empty type, got %+v", typeDiag)
+	}
+
+	// --fix should set type to "task".
+	if _, _, err := Fix(ledger, false); err != nil {
+		t.Fatalf("Fix: %v", err)
+	}
+	data, err := os.ReadFile(filepath.Join(ledger, repo.TasksDir, "task-bad.md"))
+	if err != nil {
+		t.Fatalf("read task after fix: %v", err)
+	}
+	// The type field should now be set.
+	if !strings.Contains(string(data), "\ntype: task\n") {
+		t.Fatalf("expected type: task in fixed task file, got:\n%s", data)
 	}
 }
 
@@ -111,7 +155,7 @@ func TestSelfDependencyIsFixable(t *testing.T) {
 		t.Fatalf("expected fixable self-dependency, got %+v", d)
 	}
 
-	applied, _, err := Fix(ledger)
+	applied, _, err := Fix(ledger, false)
 	if err != nil {
 		t.Fatalf("Fix: %v", err)
 	}
@@ -152,7 +196,7 @@ func TestOrphanedTmpIsFixableWarning(t *testing.T) {
 		t.Fatalf("expected fixable filesystem warning for orphan tmp, got %+v", d)
 	}
 
-	if _, _, err := Fix(ledger); err != nil {
+	if _, _, err := Fix(ledger, false); err != nil {
 		t.Fatalf("Fix: %v", err)
 	}
 	if _, err := os.Stat(filepath.Join(ledger, repo.TasksDir, "task-abc.md.tmp")); !os.IsNotExist(err) {
@@ -174,7 +218,7 @@ func TestExpiredClaimIsReleased(t *testing.T) {
 		t.Fatalf("expected fixable claims warning for expired claim, got %+v", d)
 	}
 
-	if _, _, err := Fix(ledger); err != nil {
+	if _, _, err := Fix(ledger, false); err != nil {
 		t.Fatalf("Fix: %v", err)
 	}
 	diags2, _ := Diagnose(ledger)
@@ -246,8 +290,36 @@ func TestOrphanedEventDetected(t *testing.T) {
 
 	diags, _ := Diagnose(ledger)
 	d := findFor(diags, CategoryEvents, "task-ghost")
-	if d == nil || d.Severity != SeverityError {
-		t.Fatalf("expected events error for orphaned event, got %+v", d)
+	if d == nil || d.Severity != SeverityWarning || !d.Fixable {
+		t.Fatalf("expected fixable events warning for orphaned event, got %+v", d)
+	}
+}
+
+func TestOrphanedEventPurgedWithForce(t *testing.T) {
+	ledger := newLedger(t)
+	writeTask(t, ledger, "task-abc.md", cleanTask("task-abc"))
+	journal := filepath.Join(ledger, repo.EventsJournal)
+	line := `{"time":"2026-01-01T00:00:00Z","event":"created","task_id":"task-ghost"}` + "\n"
+	if err := os.WriteFile(journal, []byte(line), 0o644); err != nil {
+		t.Fatalf("write journal: %v", err)
+	}
+
+	// Without force, orphaned events are not purged.
+	if _, _, err := Fix(ledger, false); err != nil {
+		t.Fatalf("Fix without force should not fail: %v", err)
+	}
+	diags, _ := Diagnose(ledger)
+	if findFor(diags, CategoryEvents, "task-ghost") == nil {
+		t.Fatalf("orphaned event should remain without force")
+	}
+
+	// With force, orphaned events are purged.
+	if _, _, err := Fix(ledger, true); err != nil {
+		t.Fatalf("Fix with force: %v", err)
+	}
+	diags2, _ := Diagnose(ledger)
+	if findFor(diags2, CategoryEvents, "task-ghost") != nil {
+		t.Fatalf("orphaned event should be removed after force-fix: %+v", diags2)
 	}
 }
 
@@ -268,7 +340,7 @@ func TestDeadFileReferenceIsFixable(t *testing.T) {
 		t.Fatalf("expected fixable references warning, got %+v", d)
 	}
 
-	if _, _, err := Fix(ledger); err != nil {
+	if _, _, err := Fix(ledger, false); err != nil {
 		t.Fatalf("Fix: %v", err)
 	}
 	diags2, _ := Diagnose(ledger)

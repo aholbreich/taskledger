@@ -37,7 +37,6 @@
 {"time":"2026-05-24T16:24:22Z","event":"note_added","task_id":"task-dsp","actor":"pi:refine-command"}
 {"time":"2026-05-24T16:24:22Z","event":"closed","task_id":"task-dsp","actor":"pi:refine-command"}
 {"time":"2026-05-24T16:26:49Z","event":"refined","task_id":"task-3q7"}
-{"time":"2026-05-24T16:27:26Z","event":"created","task_id":"task-di6","actor":"human"}
 {"time":"2026-05-24T16:31:22Z","event":"created","task_id":"task-o1a","actor":"human"}
 {"time":"2026-05-24T16:31:22Z","event":"claimed","task_id":"task-o1a","actor":"pi:refine-edit-feature"}
 {"time":"2026-05-24T16:32:45Z","event":"note_added","task_id":"task-o1a","actor":"pi:refine-edit-feature"}
@@ -88,10 +87,8 @@
 {"time":"2026-05-29T14:05:17Z","event":"note_added","task_id":"task-reg","actor":"claude-code"}
 {"time":"2026-05-29T14:05:17Z","event":"note_added","task_id":"task-4sh","actor":"claude-code"}
 {"time":"2026-05-29T16:52:29Z","event":"created","task_id":"task-w1b","actor":"human"}
-{"time":"2026-05-29T16:52:29Z","event":"created","task_id":"task-sdv","actor":"human"}
 {"time":"2026-05-29T16:52:29Z","event":"created","task_id":"task-sgt","actor":"human"}
 {"time":"2026-05-29T16:52:29Z","event":"created","task_id":"task-oqf","actor":"human"}
-{"time":"2026-05-29T16:52:29Z","event":"created","task_id":"task-t6b","actor":"human"}
 {"time":"2026-05-29T16:52:29Z","event":"created","task_id":"task-79e","actor":"human"}
 {"time":"2026-05-29T16:52:29Z","event":"created","task_id":"task-ppj","actor":"human"}
 {"time":"2026-05-29T16:52:29Z","event":"created","task_id":"task-uda","actor":"human"}
@@ -99,19 +96,12 @@
 {"time":"2026-05-29T16:52:45Z","event":"created","task_id":"task-hz9","actor":"human"}
 {"time":"2026-05-29T16:52:45Z","event":"created","task_id":"task-3r2","actor":"human"}
 {"time":"2026-05-29T16:52:45Z","event":"created","task_id":"task-b3i","actor":"human"}
-{"time":"2026-05-29T16:52:45Z","event":"created","task_id":"task-7kx","actor":"human"}
 {"time":"2026-05-29T16:55:17Z","event":"claimed","task_id":"task-w1b","actor":"claude-code:promotion"}
 {"time":"2026-05-29T16:58:38Z","event":"note_added","task_id":"task-w1b","actor":"claude-code:promotion"}
 {"time":"2026-05-29T16:58:38Z","event":"closed","task_id":"task-w1b","actor":"claude-code:promotion"}
-{"time":"2026-05-29T16:58:38Z","event":"claimed","task_id":"task-sdv","actor":"claude-code:promotion"}
-{"time":"2026-05-29T16:59:05Z","event":"note_added","task_id":"task-sdv","actor":"claude-code:promotion"}
-{"time":"2026-05-29T16:59:05Z","event":"closed","task_id":"task-sdv","actor":"claude-code:promotion"}
 {"time":"2026-05-29T16:59:05Z","event":"claimed","task_id":"task-sgt","actor":"claude-code:promotion"}
 {"time":"2026-05-29T17:00:07Z","event":"note_added","task_id":"task-sgt","actor":"claude-code:promotion"}
 {"time":"2026-05-29T17:00:07Z","event":"closed","task_id":"task-sgt","actor":"claude-code:promotion"}
-{"time":"2026-05-29T17:02:43Z","event":"claimed","task_id":"task-t6b","actor":"claude-code:promotion"}
-{"time":"2026-05-29T17:07:19Z","event":"note_added","task_id":"task-t6b","actor":"claude-code:promotion"}
-{"time":"2026-05-29T17:07:19Z","event":"closed","task_id":"task-t6b","actor":"claude-code:promotion"}
 {"time":"2026-05-29T17:15:29Z","event":"created","task_id":"task-afx","actor":"human"}
 {"time":"2026-05-29T17:19:33Z","event":"claimed","task_id":"task-afx","actor":"claude-code:promotion"}
 {"time":"2026-05-29T17:19:33Z","event":"note_added","task_id":"task-afx","actor":"claude-code:promotion"}
@@ -175,3 +165,8 @@
 {"time":"2026-05-30T18:38:33Z","event":"reference_added","task_id":"task-v6f","actor":"human","value":"features/agents.feature"}
 {"time":"2026-05-30T18:38:46Z","event":"created","task_id":"task-wvu","actor":"human"}
 {"time":"2026-05-30T18:38:46Z","event":"reference_added","task_id":"task-wvu","actor":"human","value":"cmd/actor.go"}
+{"time":"2026-05-30T19:32:08Z","event":"note_added","task_id":"task-hz9","actor":"pi:planning"}
+{"time":"2026-05-30T19:44:55Z","event":"released","task_id":"task-4sh","actor":"main-pc"}
+{"time":"2026-05-30T19:47:23Z","event":"claimed","task_id":"task-4sh","actor":"pi:doctor"}
+{"time":"2026-05-30T19:47:27Z","event":"note_added","task_id":"task-4sh","actor":"pi:doctor"}
+{"time":"2026-05-30T19:47:27Z","event":"closed","task_id":"task-4sh","actor":"pi:doctor"}{"time":"2026-05-30T20:02:24Z","event":"created","task_id":"task-l7t","actor":"human"}

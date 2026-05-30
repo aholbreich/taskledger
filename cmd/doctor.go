@@ -13,14 +13,18 @@ func newDoctorCmd() *cobra.Command {
 	var (
 		asJSON bool
 		fix    bool
+		force  bool
 	)
 	c := &cobra.Command{
 		Use:   "doctor",
 		Short: "Scan the ledger for integrity issues (optionally repair them)",
 		Long: "Scan task files, the event journal, config, and the filesystem for " +
-			"structural and data-integrity problems. doctor is diagnostic: it always " +
-			"exits 0 when it can read the ledger, regardless of what it finds. Use " +
-			"--fix to repair the issues it knows how to mend.",
+			"structural and data-integrity problems.\n\n" +
+			"doctor is diagnostic: it always exits 0 when it can read the ledger, " +
+			"regardless of what it finds.\n\n" +
+			"Use --fix to repair issues that can be safely auto-fixed. Add --force " +
+			"to also apply destructive repairs (e.g. removing orphaned event lines " +
+			"from the journal).",
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ledger, err := requireLedger()
@@ -28,13 +32,17 @@ func newDoctorCmd() *cobra.Command {
 				return err
 			}
 			if fix {
-				return runDoctorFix(cmd, ledger, asJSON)
+				return runDoctorFix(cmd, ledger, asJSON, force)
+			}
+			if force {
+				return fmt.Errorf("--force requires --fix")
 			}
 			return runDoctorReport(cmd, ledger, asJSON)
 		},
 	}
 	c.Flags().BoolVar(&asJSON, "json", false, "Emit JSON output")
 	c.Flags().BoolVar(&fix, "fix", false, "Repair issues that can be safely auto-fixed")
+	c.Flags().BoolVar(&force, "force", false, "Allow destructive repairs (requires --fix)")
 	return c
 }
 
@@ -63,14 +71,14 @@ func runDoctorReport(cmd *cobra.Command, ledger string, asJSON bool) error {
 	return nil
 }
 
-func runDoctorFix(cmd *cobra.Command, ledger string, asJSON bool) error {
+func runDoctorFix(cmd *cobra.Command, ledger string, asJSON, force bool) error {
 	release, err := acquireLock(ledger)
 	if err != nil {
 		return err
 	}
 	defer release()
 
-	applied, unfixable, err := doctor.Fix(ledger)
+	applied, unfixable, err := doctor.Fix(ledger, force)
 	if err != nil {
 		return err
 	}

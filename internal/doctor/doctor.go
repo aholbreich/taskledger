@@ -11,7 +11,9 @@ package doctor
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -55,11 +57,13 @@ const (
 
 // fix kinds — drive the repair Fix performs and the verb it reports.
 const (
-	fixSelfDep   = "self-dependency"
-	fixOrphanTmp = "orphan-tmp"
-	fixOpenClaim = "open-claim"
-	fixExpired   = "expired-claim"
-	fixDeadRef   = "dead-reference"
+	fixSelfDep     = "self-dependency"
+	fixOrphanTmp   = "orphan-tmp"
+	fixOpenClaim   = "open-claim"
+	fixExpired     = "expired-claim"
+	fixDeadRef     = "dead-reference"
+	fixOrphanEvent = "orphan-event"
+	fixEmptyType   = "empty-type"
 )
 
 // Diagnostic is one finding. The exported fields form the stable JSON shape;
@@ -187,7 +191,11 @@ func Diagnose(ledger string) ([]Diagnostic, error) {
 // Fix scans the ledger, repairs every fixable diagnostic, and returns the
 // repairs applied alongside the diagnostics it could not fix. The caller must
 // hold the ledger lock.
-func Fix(ledger string) (applied []Repair, unfixable []Diagnostic, err error) {
+//
+// Pass force=true to allow destructive repairs (e.g. removing orphaned event
+// lines from the journal). Without force, destructive diagnostics are reported
+// as unfixable.
+func Fix(ledger string, force bool) (applied []Repair, unfixable []Diagnostic, err error) {
 	diags, err := Diagnose(ledger)
 	if err != nil {
 		return nil, nil, err
@@ -197,7 +205,7 @@ func Fix(ledger string) (applied []Repair, unfixable []Diagnostic, err error) {
 			unfixable = append(unfixable, d)
 			continue
 		}
-		verb, ferr := applyRepair(ledger, d)
+		verb, ferr := applyRepair(ledger, d, force)
 		if ferr != nil {
 			// Surface a failed repair as a still-unfixable finding rather
 			// than aborting the whole run.
@@ -211,7 +219,10 @@ func Fix(ledger string) (applied []Repair, unfixable []Diagnostic, err error) {
 	return applied, unfixable, nil
 }
 
-func applyRepair(ledger string, d Diagnostic) (string, error) {
+func applyRepair(ledger string, d Diagnostic, force bool) (string, error) {
+	if d.fixKind == fixOrphanEvent && !force {
+		return "", os.ErrInvalid // skip without force
+	}
 	switch d.fixKind {
 	case fixOrphanTmp:
 		return "removed", os.Remove(d.fixTarget)
@@ -260,6 +271,19 @@ func applyRepair(ledger string, d Diagnostic) (string, error) {
 			return "", err
 		}
 		return "fixed", events.Append(ledger, events.Event{Event: "reference_removed", TaskID: t.ID, Value: d.fixTarget})
+	case fixOrphanEvent:
+		return purgeOrphanedEvents(ledger, d.TaskID)
+	case fixEmptyType:
+		t, err := store.Read(ledger, d.TaskID)
+		if err != nil {
+			return "", err
+		}
+		t.Type = "task"
+		t.UpdatedAt = time.Now().UTC().Truncate(time.Second)
+		if err := store.Write(ledger, t); err != nil {
+			return "", err
+		}
+		return "fixed", events.Append(ledger, events.Event{Event: "refined", TaskID: t.ID, Value: "type: task"})
 	default:
 		return "", os.ErrInvalid
 	}
@@ -282,7 +306,11 @@ func checkFrontmatter(id string, t *task.Task) []Diagnostic {
 		add("unknown priority value: " + quote(t.Priority))
 	}
 	if strings.TrimSpace(t.Type) == "" {
-		add("missing required field: type")
+		out = append(out, Diagnostic{
+			Severity: SeverityWarning, Category: CategoryFrontmatter, TaskID: id,
+			Message: "missing required field: type",
+			Fixable: true, fixKind: fixEmptyType,
+		})
 	}
 	return out
 }
@@ -536,8 +564,9 @@ func scanEvents(ledger string, parsed map[string]*task.Task) (int, []Diagnostic)
 		}
 		seenOrphan[e.TaskID] = true
 		out = append(out, Diagnostic{
-			Severity: SeverityError, Category: CategoryEvents, TaskID: e.TaskID,
+			Severity: SeverityWarning, Category: CategoryEvents, TaskID: e.TaskID,
 			Message: "event journal references task with no file",
+			Fixable: true, fixKind: fixOrphanEvent,
 		})
 	}
 	return count, out
@@ -601,6 +630,50 @@ func quote(s string) string { return "\"" + s + "\"" }
 
 // sortDiagnostics orders findings by category, then severity (errors first),
 // then task id, for stable human and JSON output.
+// purgeOrphanedEvents removes all event journal lines that reference the given
+// task ID. This is a destructive operation — it rewrites events.jsonl without
+// the orphaned lines. The caller must hold the ledger lock.
+func purgeOrphanedEvents(ledger, taskID string) (string, error) {
+	p := filepath.Join(ledger, repo.EventsJournal)
+
+	input, err := os.ReadFile(p)
+	if err != nil {
+		return "", err
+	}
+
+	var kept []byte
+	dropped := 0
+	for _, line := range bytes.Split(input, []byte("\n")) {
+		if len(line) == 0 {
+			kept = append(kept, line...)
+			kept = append(kept, '\n')
+			continue
+		}
+		var e events.Event
+		if err := json.Unmarshal(line, &e); err != nil {
+			kept = append(kept, line...)
+			kept = append(kept, '\n')
+			continue
+		}
+		if e.TaskID == taskID {
+			dropped++
+			continue
+		}
+		kept = append(kept, line...)
+		kept = append(kept, '\n')
+	}
+
+	if dropped == 0 {
+		return "", fmt.Errorf("no orphaned events found for %s", taskID)
+	}
+	// Trim trailing newline to match the original file convention.
+	kept = bytes.TrimRight(kept, "\n")
+	if err := os.WriteFile(p, kept, 0o644); err != nil {
+		return "", err
+	}
+	return "purged", nil
+}
+
 func sortDiagnostics(d []Diagnostic) {
 	sevRank := func(s string) int {
 		if s == SeverityError {

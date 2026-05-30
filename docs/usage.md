@@ -252,6 +252,40 @@ finished or released. It prints nothing when every claim is fresh.
 $ tl stale
 ```
 
+`doctor` scans the ledger for structural and data-integrity problems. It is
+diagnostic: it always exits 0 when it can read the ledger, regardless of
+what it finds.
+
+```sh
+$ tl doctor
+[warning] events task-7kx: event journal references task with no file
+[warning] frontmatter task-029: missing required field: type
+```
+
+Use `--json` for scriptable output. The shape is stable:
+
+```sh
+$ tl doctor --json
+[
+  {
+    "severity": "warning",
+    "category": "frontmatter",
+    "task_id": "task-029",
+    "message": "missing required field: type",
+    "fixable": true
+  }
+]
+```
+
+`--fix` repairs fixable issues (self-dependencies, stale claims, orphaned
+`.tmp` files, empty types, dead references). Add `--force` to also apply
+destructive repairs such as removing orphaned event lines from the journal.
+
+```sh
+$ tl doctor --fix                      # safe repairs only
+$ tl doctor --fix --force              # include destructive repairs
+```
+
 `agents` prints a ready-to-paste workflow guide for a coding agent. Drop its
 output into `AGENTS.md` or an agent's context so it knows the claim/note/close
 discipline without being told each time.

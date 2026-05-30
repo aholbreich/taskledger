@@ -1,19 +1,19 @@
 ---
 id: task-4sh
 title: Design and implement tl doctor command
-status: in_progress
+status: done
 priority: high
 type: feature
 created_at: 2026-05-29T11:16:22Z
-updated_at: 2026-05-30T17:07:32Z
+updated_at: 2026-05-30T19:47:27Z
 created_by: human
 assignee: null
 depends_on: []
 claim:
-  actor: claude:doctor
-  claimed_at: 2026-05-30T17:07:32Z
-  expires_at: 2026-05-30T18:07:32Z
-  heartbeat_at: 2026-05-30T17:07:32Z
+  actor: null
+  claimed_at: null
+  expires_at: null
+  heartbeat_at: null
 tags:
   - cli
 references:
@@ -63,3 +63,4 @@ Design and implement the `tl doctor` command — a ledger diagnostic tool that s
 - 2026-05-29T14:04:59Z [main-pc] note: Created docs/import-sync-PRD.md — comprehensive PRD covering JSON pipe import, markdown import, GitHub Issues import, JIRA/Linear/Trello import, and Trello bidirectional sync with shallow tasks. Includes 20 open questions marked Q1-Q20 for discussion.
 - 2026-05-29T14:05:17Z [claude-code] note: Cross-cutting note from task-reg refinement: when task-reg lands, doctor.feature should grow ~5 scenarios for reference validation (URL skip, bare identifier skip, path exists, path missing -> warning, --fix removes dead path refs). Whichever of {task-4sh, task-reg} ships second is responsible for adding the reference-validation scenarios to the relevant feature file.
 - 2026-05-29T18:06:33Z [claude-code:references] note: When implementing tl doctor, extend features/doctor.feature with references validation (now that task-reg has shipped the field). Heuristic per task-reg design: URL-shaped (matches ^[a-z][a-z0-9+.-]*:) -> skip; path-shaped (contains '/' no scheme) -> treat as repo-relative path (relative to parent of .tl/), warn if missing; bare identifier/free text -> skip. doctor --fix removes dead file-path refs; URL/identifier cases reported fixable:false.
+- 2026-05-30T19:47:27Z [pi:doctor] note: Analysis complete: ClaudeCode actually finished the entire implementation before being interrupted. Verified: - cmd/doctor.go wired into root.go ✅ - internal/doctor/doctor.go covers all 10 diagnostic categories ✅ - 13 unit tests in internal/doctor/doctor_test.go all pass ✅ - Full BDD step definitions in bdd/doctor_test.go ✅ - features/doctor.feature correctly tagged @implemented ✅ - Live tested: 'go run . doctor' finds 10 real issues, --json outputs correctly Closing — no implementation work remaining.

@@ -106,7 +106,7 @@ func newCreateCmd() *cobra.Command {
 	c.Flags().StringVar(&flagTitle, "title", "", "Task title (required, or positional argument)")
 	c.Flags().StringVarP(&description, "description", "d", "", "Task description (stored under ## Description)")
 	c.Flags().StringVarP(&priority, "priority", "p", "medium", "Task priority (low|medium|high)")
-	c.Flags().StringVarP(&taskType, "type", "t", "", "Task type")
+	c.Flags().StringVarP(&taskType, "type", "t", "task", "Task type")
 	c.Flags().StringArrayVar(&tags, "tag", nil, "Tag to apply (repeatable)")
 	c.Flags().StringArrayVar(&refs, "ref", nil, "Reference to attach: file path, URL, ticket ID, … (repeatable)")
 	c.Flags().StringVar(&actor, "actor", "human", "Creator actor")

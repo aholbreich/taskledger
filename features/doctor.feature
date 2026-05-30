@@ -1,3 +1,4 @@
+@implemented
 Feature: Diagnose ledger integrity
   As a developer or agent
   I want to scan the ledger for structural and data integrity issues
@@ -26,7 +27,7 @@ Feature: Diagnose ledger integrity
   # -------------------------------------------------------------------------
   # Frontmatter — bad data inside the task's YAML header.
   # -------------------------------------------------------------------------
-  Scenario Outline: Frontmatter problems are detected
+  Scenario Outline: Frontmatter problems are detected (errors)
     Given <setup>
     When the developer runs `tl doctor`
     Then the doctor reports a "frontmatter" issue for "<task>" with severity "error"
@@ -37,7 +38,15 @@ Feature: Diagnose ledger integrity
       | a task file "task-xyz.md" with frontmatter missing the "title" field | task-xyz |
       | a task "task-abc" with status "super-duper"                     | task-abc |
       | a task "task-abc" with priority "urgent"                        | task-abc |
-      | a task "task-abc" with type "" (empty)                          | task-abc |
+
+  Scenario Outline: An empty type field is a fixable warning
+    Given <setup>
+    When the developer runs `tl doctor`
+    Then the doctor reports a "frontmatter" issue for "<task>" with severity "warning"
+
+    Examples:
+      | setup                                | task     |
+      | a task "task-abc" with type "" (empty) | task-abc |
 
   # -------------------------------------------------------------------------
   # Identity — two task files claiming the same ID.
@@ -77,7 +86,7 @@ Feature: Diagnose ledger integrity
     Given an event in the journal referencing task "task-ghost"
     And no task file for "task-ghost" exists
     When the developer runs `tl doctor`
-    Then the doctor reports an "events" issue for "task-ghost" with severity "error"
+    Then the doctor reports an "events" issue for "task-ghost" with severity "warning"
 
   # -------------------------------------------------------------------------
   # Claims — claim state inconsistent with task status. Severity varies:
