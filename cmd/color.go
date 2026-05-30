@@ -87,6 +87,25 @@ func colorClosedListLine(enabled bool, line string) string {
 	return internalcolor.ClosedListLine(line)
 }
 
+// colorSeverity wraps a doctor severity tag in red (error) or yellow (warning).
+func colorSeverity(enabled bool, severity, text string) string {
+	if !enabled {
+		return text
+	}
+	if severity == "error" {
+		return internalcolor.Apply(internalcolor.Red, text)
+	}
+	return internalcolor.Apply(internalcolor.Yellow, text)
+}
+
+// colorRepairVerb wraps a doctor repair verb tag in green.
+func colorRepairVerb(enabled bool, text string) string {
+	if !enabled {
+		return text
+	}
+	return internalcolor.Apply(internalcolor.Green, text)
+}
+
 func colorDimCode() string {
 	return internalcolor.Dim
 }

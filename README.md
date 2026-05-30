@@ -11,16 +11,17 @@
 
 ## Why tl cli?
 
-Chat history disappears. TODO files are not dependency-aware. GitHub Issues are remote-first.
-`tl` gives every repository a small local task ledger that both humans and agents can read and update. It anchors the work to be done around one repository or project.
+ Humans and AI coding agents need to coordinate work on the same repository. Chat disappears. `TODO.md` don't scale. GitHub Issues are remote-first and public.
 
-- Git-native: state lives in `.tl/` folder
-- Human-readable: tasks are Markdown with YAML frontmatter
-- Agent-readable: read commands support `--json`
-- Coordination-safe: claims use leases and stale work is detectable
-- Handoff-friendly: notes preserve context across sessions
-- Flexible: tasks are the unit of work — `tl` adapts to your (agentic) flow.
-- Boring by design: no daemon, no database, no automatic push
+`tl` gives every repository a small local task ledger that both humans and agents can read and update - without a daemon, a database, or a remote service.
+
+- **Agent-safe coordination:** claims are explicit, stale work is detectable, handoffs are recorded
+- **Git-native:** state lives in `.tl/` - commit it, diff it, branch it
+- **Human-readable:** tasks are plain Markdown with YAML frontmatter
+- **Agent-readable:** every read command supports `--json` and `--actor`
+- **Handoff-friendly:** notes and references preserve context across sessions and actors. Task centered. 
+- **Flexible:** tasks are the unit of work — `tl` adapts to your flow
+- **Boring by design:** no daemon, no database, no git hooks, no automatic push (you decide)
 
 **Contents:** [How it compares](#how-tl-compares) · [Installation Options](#installation-options) · [Quickstart](#quickstart) · [Commands](#commands)  · [Development](#development) · [Further reading](#further-reading)
 
@@ -39,7 +40,6 @@ Feature-by-feature, including the honest "why `tl` and not Beads / Backlog.md":
 **[`docs/comparison.md`](docs/comparison.md)**.
 
 ---
-
 
 
 ## Installation Options
