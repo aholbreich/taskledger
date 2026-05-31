@@ -84,18 +84,41 @@ $(error Usage: make release VERSION=x.y.z)
 endif
 endif
 
-# Build archives, tag HEAD, push the tag, and publish a GitHub Release.
-release: dists
+# Validate, tag HEAD, and push the tag. GitHub Actions builds archives and publishes the GitHub Release.
+release:
 	@set -e; \
-	notes=$$(mktemp); \
-	trap 'rm -f "$$notes"' EXIT; \
-	for asset in tl-*.tar.gz tl-*.zip; do \
-		[ -e "$$asset" ] || { echo "Missing release assets; run make dists first." >&2; exit 1; }; \
-	done; \
-	make changelog > "$$notes"; \
-	git tag "$(VERSION)"; \
-	gh release create "$(VERSION)" --target "$$(git rev-parse HEAD)" --notes-file "$$notes" --title "tl $(VERSION)" tl-*.tar.gz tl-*.zip; \
-	git push origin "$(VERSION)"
+	printf '%s\n' "$(VERSION)" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$$' || { \
+		echo "VERSION must look like x.y.z, got '$(VERSION)'" >&2; \
+		exit 2; \
+	}; \
+	if [ -n "$$(git status --porcelain)" ]; then \
+		echo "Working tree is not clean; commit or stash changes before releasing." >&2; \
+		exit 1; \
+	fi; \
+	branch=$$(git rev-parse --abbrev-ref HEAD); \
+	if [ "$$branch" != "main" ]; then \
+		echo "Releases must be cut from main; current branch is $$branch." >&2; \
+		exit 1; \
+	fi; \
+	git fetch origin main --tags; \
+	if git rev-parse -q --verify "refs/tags/$(VERSION)" >/dev/null; then \
+		echo "Tag $(VERSION) already exists locally." >&2; \
+		exit 1; \
+	fi; \
+	if git ls-remote --exit-code --tags origin "refs/tags/$(VERSION)" >/dev/null 2>&1; then \
+		echo "Tag $(VERSION) already exists on origin." >&2; \
+		exit 1; \
+	fi; \
+	local_head=$$(git rev-parse HEAD); \
+	remote_head=$$(git rev-parse origin/main); \
+	if [ "$$local_head" != "$$remote_head" ]; then \
+		echo "HEAD ($$local_head) is not pushed to origin/main ($$remote_head). Push main before releasing." >&2; \
+		exit 1; \
+	fi; \
+	go test -v ./...; \
+	git tag -a "$(VERSION)" -m "tl $(VERSION)"; \
+	git push origin "$(VERSION)"; \
+	echo "Pushed tag $(VERSION). GitHub Actions will build archives and publish the GitHub Release."
 
 # Amend the last commit with all current changes and force-push. Use with care.
 amend:

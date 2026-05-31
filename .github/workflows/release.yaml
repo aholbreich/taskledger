@@ -72,9 +72,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          body: |
-            tl ${{ github.ref_name }} - multi-platform binaries.
+          name: tl ${{ github.ref_name }}
+          generate_release_notes: true
           files: |
             dist/**/*
 

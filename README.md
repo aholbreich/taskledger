@@ -211,13 +211,16 @@ tl agents [--write-files [--dry-run]] [--compact] # print or install agent workf
 make build                  # version-stamped local binary
 make test                   # all Go tests
 make bdd                    # godog suite only
-make dists                  # cross-platform release archives
+make dists                  # local cross-platform archives for manual testing
+make release VERSION=x.y.z  # validate, tag, and push; GitHub Actions publishes
 make clean
 ```
 
 CI runs `gofmt`, `go vet`, `make build`, `make test` on every PR and push to
 `main` (see [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml)).
-Tag-triggered releases build all platforms and publish a GitHub Release.
+`make release VERSION=x.y.z` only verifies that `HEAD` is clean, on `main`, and
+already pushed to `origin/main`, then pushes the tag. The tag-triggered release
+workflow builds all platform archives and publishes the GitHub Release.
 
 ---
 
