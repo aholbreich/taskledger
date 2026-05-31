@@ -35,14 +35,14 @@ func newHistoryCmd() *cobra.Command {
 
 			taskID := ""
 			if len(args) == 1 {
+				taskID = store.NormalizeID(args[0])
 				t, err := store.Read(ledger, args[0])
-				if errors.Is(err, store.ErrTaskNotFound) {
-					return NewExitError(3, "task %s not found", args[0])
-				}
-				if err != nil {
+				if err != nil && !errors.Is(err, store.ErrTaskNotFound) {
 					return err
 				}
-				taskID = t.ID
+				if err == nil {
+					taskID = t.ID
+				}
 			}
 
 			var cutoff time.Time
@@ -59,6 +59,9 @@ func newHistoryCmd() *cobra.Command {
 				return err
 			}
 			history = filterHistoryEvents(history, taskID, cutoff)
+			if len(args) == 1 && len(history) == 0 {
+				return NewExitError(3, "task %s not found", taskID)
+			}
 
 			if asJSON {
 				enc := json.NewEncoder(cmd.OutOrStdout())

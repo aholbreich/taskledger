@@ -127,6 +127,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	initializeCompletionInstallSteps(ctx, w)
 	initializeReferencesSteps(ctx, w)
 	initializeDoctorSteps(ctx, w)
+	initializeRemoveSteps(ctx, w)
 }
 
 // --- shared CLI invocation ------------------------------------------------

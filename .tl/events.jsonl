@@ -214,3 +214,11 @@
 {"time":"2026-05-31T18:14:30Z","event":"note_added","task_id":"task-lrv","actor":"pi:doctor-events"}
 {"time":"2026-05-31T18:14:30Z","event":"closed","task_id":"task-lrv","actor":"pi:doctor-events"}
 {"time":"2026-05-31T18:16:13Z","event":"note_added","task_id":"task-lrv","actor":"pi:doctor-events"}
+{"time":"2026-05-31T18:43:45Z","event":"created","task_id":"task-6uc","actor":"pi:remove"}
+{"time":"2026-05-31T18:43:45Z","event":"reference_added","task_id":"task-6uc","actor":"pi:remove","value":"features/remove.feature"}
+{"time":"2026-05-31T18:43:45Z","event":"reference_added","task_id":"task-6uc","actor":"pi:remove","value":"cmd/remove.go"}
+{"time":"2026-05-31T18:43:45Z","event":"reference_added","task_id":"task-6uc","actor":"pi:remove","value":"bdd/remove_test.go"}
+{"time":"2026-05-31T18:43:47Z","event":"claimed","task_id":"task-6uc","actor":"pi:remove"}
+{"time":"2026-05-31T18:47:14Z","event":"note_added","task_id":"task-6uc","actor":"pi:remove"}
+{"time":"2026-05-31T18:47:14Z","event":"closed","task_id":"task-6uc","actor":"pi:remove"}
+{"time":"2026-05-31T19:06:38Z","event":"removed","task_id":"task-l7t","actor":"main-pc","value":"Test task"}

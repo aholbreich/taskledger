@@ -48,6 +48,7 @@ Feature: Task ID autocompletion
       | resolve |
       | release |
       | refine  |
+      | remove  |
       | history |
 
   Scenario: Completing the source argument of dep add suggests task IDs

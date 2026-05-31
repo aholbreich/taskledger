@@ -184,6 +184,7 @@ tl unblock <id>                    # blocker cleared; back to open
 tl pending <id> --question "..."   # need a human decision; releases the claim
 tl resolve <id> --answer "..."     # human answers; task reopens
 tl cancel <id> -m "..."            # won't be done
+tl remove <id> -m "..." [--force]  # delete a mistaken task file from the active ledger
 tl release <id>                    # step away cleanly (leave a note first)
 
 # Inspect

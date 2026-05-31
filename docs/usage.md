@@ -151,6 +151,13 @@ $ tl cancel task-iqq -m "Out of scope for this release."
 Cancelled task-iqq
 ```
 
+**Remove** - a task file was created by mistake and should disappear from the active ledger. The reason is required and recorded as a `removed` event; Git still preserves prior file history. Removing anything other than an already-cancelled, unclaimed, dependency-free task requires `--force`.
+
+```sh
+$ tl remove task-iqq -m "Created by mistake."
+Removed task-iqq
+```
+
 **Release** - you're stepping away but the work is still valid. Leave a note
 first; the next actor reads it before picking up. (Covered next.)
 
